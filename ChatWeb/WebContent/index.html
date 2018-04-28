@@ -1,13 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="agent-chat">
 <head>
-<meta charset="UTF-8">
-<script src="js/jquery-1.11.0.js">
-</script>
-<title>Insert title here</title>
+<!-- Required meta tags -->
+	<meta charset="UTF-8"/>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="css/lib/bootstrap-4.0.0.css"/>
+	<link rel="stylesheet" href="css/lib/angucomplete-alt.css"/>
+	<link rel="stylesheet" href="font/fa/css/fontawesome-all.css"/>
+	<link rel="stylesheet" href="css/main.css"/>
+<title>Agent Chat</title>
 </head>
-<body>
-<h1>RADI Chat</h1>
- <a href="/ChatWeb/rest/Test/test">Test</a><br />
- <a href="/ChatWeb/rest/Test/hello/Pera">PathParam demonstracija</a>
+<body> 
+	<div class="container-fluid">
+		<ui-view></ui-view>
+	</div>
+	
+	
+	
+	<!-- Javascript -->
+	<!-- jQuery Slim -->
+	<script src="js/lib/jquery-3.3.1.slim.js"></script>
+	<!-- Popper.js -->
+	<script src="js/lib/popper-1.12.9.js"></script>
+	<!-- Bootstrap -->
+	<script src="js/lib/bootstrap-4.0.0.js"></script>
+	
+	<!-- AngularJS -->
+	<script src="js/lib/angular-1.6.9.js"></script>
+	<script src="js/lib/angular-ui-router.js"></script>
+	<script src="js/lib/ng-map.min.js"></script>
+	<script src="js/app.module.js"></script>
+	<script src="js/app.config.js"></script>
+	<script src="js/core/core.module.js"></script>
+	<script src="part/home/home.module.js"></script>
+	<script src="part/home/home.component.js"></script>
+	<script src="part/home/sidebar/sidebar.module.js"></script>
+	<script src="part/home/sidebar/sidebar.component.js"></script>
+	
+	
 </html>

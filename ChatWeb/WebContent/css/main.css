@@ -1,0 +1,146 @@
+
+/* Colors */
+:root {
+	--fg_color: #d3dae3;
+	--base_color: #404552;
+	--bg_color: #383c4a;
+	--border_color: #2b2e39;
+	--selected_fg_color: #ffffff;
+	--selected_bg_color: #ff5f5f;
+	--link_color: #f1a9a9;
+	--placeholder_text_color: #a8a8a8;
+}
+
+/* Lato font*/
+@font-face {
+	font-family: 'Lato';
+	src: local('Lato Regular'), local('Lato-Regular'), url(/font/lato/Lato-Regular.ttf);
+}
+
+body {
+	font-family: "Lato", sans-serif;
+	color: var(--fg_color);
+	background-color: var(--base_color);
+}
+
+*:focus {
+	outline-color: var(--selected_bg_color);
+}
+
+a {
+	color: var(--link_color);
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--selected_fg_color);
+	text-decoration: underline !important;
+	cursor: pointer;
+}
+
+.fab, .fas, .far, .fal {
+	font-size: 1.4rem;
+	margin: 0 0.2rem;
+}
+
+my-header .navbar {
+	background-color: var(--bg_color);
+}
+
+my-header .navbar-brand {
+	color: var(--selected_bg_color) !important;
+	font-size: 2rem;
+}
+
+.panel {
+	background-color: var(--bg_color);
+	border: 1px solid var(--border_color);
+	padding: 2rem;
+}
+
+.btn-custom {
+	color: var(--selected_fg_color);
+	background-color: var(--selected_bg_color);
+}
+
+my-sidebar {
+	background-color: var(--bg_color);
+	font-size: 1.1rem;
+}
+
+.active {
+	color: var(--selected_fg_color) !important;
+	background-color: var(--selected_bg_color) !important;
+}
+
+.card {
+	background-color: var(--bg_color);
+}
+
+my-stars .fa-star {
+	font-size: inherit;
+	margin: 0;
+}
+
+.placeholder {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	text-align: center;
+	color: var(--placeholder_text_color);
+	font-size: 2rem;
+}
+
+.separate::after {
+	content: ' | ';
+}
+
+.seat.o {
+	background-color: var(--green);
+}
+
+.seat.r {
+	background-color: var(--orange);
+}
+
+.seat.x {
+	background-color: var(--red);
+}
+
+.seat.v {
+	background-color: var(--indigo);
+}
+
+.seat.a {
+	background-color: var(--blue);
+}
+
+.dropdown-menu {
+	 background-color: var(--bg_color);
+}
+
+.dropdown-item {
+	color: var(--selected_bg_color);
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  color: var(--selected_fg_color);
+  text-decoration: none;
+  background-color: var(--bg_color);
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: var(--selected_bg_color);
+}
+
+.bg-dark {
+	background-color: var(--bg_color) !important;
+}
+
+.angucomplete-dropdown {
+    overflow-y: auto;
+    max-height: 200px;
+}
+
