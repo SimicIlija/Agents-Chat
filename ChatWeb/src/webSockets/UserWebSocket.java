@@ -14,18 +14,28 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/UserSocket")
+@ServerEndpoint("/Socket")
 public class UserWebSocket {
 	
 	Logger log = Logger.getLogger("Websockets endpoint");
 	
-	List<Session> sessions = new ArrayList<Session>();
+	private static List<Session> sessions = new ArrayList<Session>();
 
 	@OnOpen
 	public void onOpen(Session session) {
 		if (!sessions.contains(session)) {
 			sessions.add(session);
 			log.info("Dodao sesiju: " + session.getId() + " u endpoint-u: " + this.hashCode() + ", ukupno sesija: " + sessions.size());
+			log.info("BROJ SESIJA: "+ sessions.size());
+			try {
+			session.getBasicRemote().sendText("RADI");
+			} catch (IOException e) {
+				try {
+					session.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 
