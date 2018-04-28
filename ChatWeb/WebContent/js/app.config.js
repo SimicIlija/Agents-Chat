@@ -9,9 +9,14 @@ angular.module('agent-chat')
 				component: 'myHome'
 			})
 			.state({
-				name: 'userAuth',
-				url: '/user-auth',
+				name: 'home.userAuth',
+				url: 'user-auth',
 				component: 'myUserAuth'
+			})
+			.state({
+				name: 'home.chat',
+				url: 'chat',
+				component: 'myChat'
 			})
 //			.state({
 //				name: 'home.chart',
@@ -34,12 +39,6 @@ angular.module('agent-chat')
 			.when('', '/')
 			.otherwise('/error');
 	})
-//	.run(function($rootScope, UserAuthService) {
-//		UserAuthService.getUser().then(
-//			(response) => {
-//				$rootScope.user = response.data;
-//			},
-//			() => {
-//				$rootScope.user = null;
-//			});
-//	});
+	.run(function($rootScope, wsService) {
+		$rootScope.wsService = wsService;
+	});

@@ -3,5 +3,7 @@
 angular.module('home', [
 	'ui.router',
 	'home.sidebar',
-	'userAuth'
+	'userAuth',
+	'core.wsService',
+	'chat'
 ]);
