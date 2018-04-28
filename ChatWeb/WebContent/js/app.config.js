@@ -8,6 +8,11 @@ angular.module('agent-chat')
 				url: '/',
 				component: 'myHome'
 			})
+			.state({
+				name: 'userAuth',
+				url: '/user-auth',
+				component: 'myUserAuth'
+			})
 //			.state({
 //				name: 'home.chart',
 //				url: '^/chart/:id?monthTime',

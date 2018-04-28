@@ -2,5 +2,6 @@
 
 angular.module('home', [
 	'ui.router',
-	'home.sidebar'
+	'home.sidebar',
+	'userAuth'
 ]);

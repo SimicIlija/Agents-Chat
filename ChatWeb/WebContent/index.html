@@ -14,6 +14,7 @@
 <title>Agent Chat</title>
 </head>
 <body> 
+	<my-header></my-header>
 	<div class="container-fluid">
 		<ui-view></ui-view>
 	</div>
@@ -32,9 +33,21 @@
 	<script src="js/lib/angular-1.6.9.js"></script>
 	<script src="js/lib/angular-ui-router.js"></script>
 	<script src="js/lib/ng-map.min.js"></script>
+	
 	<script src="js/app.module.js"></script>
 	<script src="js/app.config.js"></script>
 	<script src="js/core/core.module.js"></script>
+	<script src="js/core/user/user.module.js"></script>
+	<script src="js/core/user/user-auth.service.js"></script>
+	
+	<script src="part/user-auth/user-auth.module.js"></script>
+	<script src="part/user-auth/user-auth.component.js"></script>
+	<script src="part/user-auth/registration/registration.module.js"></script>
+	<script src="part/user-auth/registration/registration.component.js"></script>
+	<script src="part/user-auth/login/login.module.js"></script>
+	<script src="part/user-auth/login/login.component.js"></script>
+	<script src="part/header/header.module.js"></script>
+	<script src="part/header/header.component.js"></script>
 	<script src="part/home/home.module.js"></script>
 	<script src="part/home/home.component.js"></script>
 	<script src="part/home/sidebar/sidebar.module.js"></script>

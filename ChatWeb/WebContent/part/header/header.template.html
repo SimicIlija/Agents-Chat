@@ -1,0 +1,38 @@
+<div class="sticky-top navbar navbar-expand-md navbar-dark">
+	<a class="navbar-brand" href="/">
+		Agent Chat
+	</a>
+	<button class="navbar-toggler"
+		data-toggle="collapse"
+		data-target=".nav-toggled">
+			<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse nav-toggled">
+		<ul class="navbar-nav ml-auto">
+			<li class="nav-item" ng-if="$root.user">
+				<a class="nav-link"
+					ui-sref="profile"
+					ui-sref-active="active">
+						<i class="fas fa-user-circle"></i>
+						{{$root.user.email}}
+				</a>
+			</li>
+			<li class="nav-item" ng-if="$root.user">
+				<a class="nav-link"
+					ng-click="$ctrl.logOut()">
+						<i class="fas fa-sign-in-alt"></i>
+						Log Out
+				</a>
+			</li>
+			<li class="nav-item" ng-if="!$root.user">
+				<a class="nav-link"
+					ui-sref="userAuth"
+					ui-sref-active="active">
+						<i class="fas fa-sign-out-alt"></i>
+						Log In / Register
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
