@@ -31,7 +31,10 @@ angular.module('chat')
 			}
 			this.changeChat = (chat) =>
 			{
-				this.display.append(chat + "\n")
+				this.display.val("");
+				chat.messages.forEach(function(element){
+					$element.find('textarea').val($element.find('textarea').val() +element.sender+" : "+ element.content + "\n");
+				});
 			}
 		}
 	});
