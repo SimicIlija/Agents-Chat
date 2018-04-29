@@ -20,7 +20,7 @@ angular.module('core.wsService')
 				   }
 				   else{ 
 					   this.payload = JSON.parse(message.data);
-					   if(this.payload.email != undefined){
+					   if(this.payload.username != undefined){
 						   $rootScope.user = this.payload;
 						   $state.go('home.chat');
 					   }

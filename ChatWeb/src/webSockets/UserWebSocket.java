@@ -28,6 +28,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
+import jms_messages.UserAuthResMsgType;
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -47,39 +48,23 @@ public class UserWebSocket {
 			log.info("Dodao sesiju: " + session.getId() + " u endpoint-u: " + this.hashCode() + ", ukupno sesija: " + sessions.size());
 			log.info("BROJ SESIJA: "+ sessions.size());
 		}
-	}
+	} 
 
 	@OnMessage
 	public void echoTextMessage(Session session, String msg, boolean last) {
-		User user =null;
+		
 		try {
 			if (session.isOpen()) {
+				
 				if(isA(msg, User.class)) {
-					log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
-					ObjectMapper mapper = new ObjectMapper();
-					user = mapper.readValue(msg, User.class);
-					log.info(user.getUsername());
-					
-					// TODO provera logovanja i dodavanje tokena
-						UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
-						ResteasyClient client = new ResteasyClientBuilder().build();
-						ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
-						Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
-						UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
-						user = resMsg.getUser();
-					// dodaj sesiou u grupu ulogovanih
-					logedin.put(user, session);
-					logedinR.put(session, user);
-					
-					//posalji odgovor nazad
-					String jsonObject = mapper.writeValueAsString(user);
-					session.getBasicRemote().sendText(jsonObject);
+					handleLoginMessage(session, msg);
 				}
 				else if(msg.equals("getLatestChat")) {
 					
 					//TODO nabavi par poslednjih chat-ova za ovog korisnika
 					session.getBasicRemote().sendText("LC");
 				}
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -116,5 +101,33 @@ public class UserWebSocket {
 		     return false;
 		  } 
 		}
-	
+	private void handleLoginMessage(Session session, String msg)
+	{
+		User user =null;
+		try {
+			log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
+			ObjectMapper mapper = new ObjectMapper();
+			user = mapper.readValue(msg, User.class);
+			log.info(user.getUsername());
+			
+			// TODO provera logovanja i dodavanje tokena
+				UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
+				ResteasyClient client = new ResteasyClientBuilder().build();
+				// TODO izmeniti da nije hardCoded adresa
+				ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
+				Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
+				UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
+				user = resMsg.getUser();
+				
+			// dodaj sesiou u grupu ulogovanih
+			logedin.put(user, session);
+			logedinR.put(session, user);
+			
+			//posalji odgovor nazad
+			String jsonObject = mapper.writeValueAsString(user);
+			session.getBasicRemote().sendText(jsonObject);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 }
