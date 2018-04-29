@@ -82,4 +82,35 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		return resMsg;
 	}
 
+	@Override
+	public void logoutAttempt(String username) {
+		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// TODO kad Sima uradi JMS SKOLoniti komentare
+//		if(is_master) {
+//			logoutAttempt_JMS(username);
+//		}else {
+		logoutAttempt_REST(username);
+//		}
+		
+		
+	}
+
+	@Override
+	public void logoutAttempt_JMS(String username) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void logoutAttempt_REST(String username) {
+		if(username == null)
+			return;
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		// TODO izmeniti da nije hardCoded adresa
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/logout/"+username);
+		Response response = target.request().delete();
+		
+	}
+
 }

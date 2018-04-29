@@ -11,6 +11,6 @@ public interface UserAuthMgmtLocal {
 	
 	public User register(User user) throws UserAuthException;
 	public User logIn(User user, Host host) throws UserAuthException;
-	public User logOut(User user);
+	public boolean logOut(String username);
 
 }

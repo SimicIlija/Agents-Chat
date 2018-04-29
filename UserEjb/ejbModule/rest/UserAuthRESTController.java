@@ -4,9 +4,11 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -61,13 +63,15 @@ public class UserAuthRESTController {
 		}
 	}
 	
-	@POST
-	@Path("/logout")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public UserAuthResMsg logOut(UserAuthReqMsg msg) {
-		User user = userAuthMgmt.logOut(msg.getUser());
-		return new UserAuthResMsg(user, msg.getSessionId(), UserAuthResMsgType.LOGGED_OUT);
+	@DELETE
+	@Path("/logout/{username}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String logOut(@PathParam("username") String username) {
+		boolean ret = userAuthMgmt.logOut(username);
+		if(ret)
+			return "ok";
+		else 
+			return "error";
 	}
 	
 }

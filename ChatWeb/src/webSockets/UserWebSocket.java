@@ -89,10 +89,15 @@ public class UserWebSocket {
 	public void close(Session session) {
 		sessions.remove(session);
 		String username = sessionUser.get(session.getId());
+		
+		//radim logout ako je neko ulogovan
+		userAppCommunication.logoutAttempt(username);
+		
 		userSession.remove(username);
 		sessionUser.remove(session);
-		//TODO ISLOGUJ TOG USERA
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
+		
+		
 	}
 	
 	@OnError
@@ -124,6 +129,7 @@ public class UserWebSocket {
 			
 			String jsonObject = mapper.writeValueAsString(ret);
 			session.getBasicRemote().sendText(jsonObject);
+			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -143,7 +149,9 @@ public class UserWebSocket {
 			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
 			UserAuthResMsg resMsg = userAppCommunication.sendAuthAttempt(userAuthMsg);
 			user = resMsg.getUser();
-				
+			if(user == null)
+				return;
+			
 			// dodaj sesiou u grupu ulogovanih
 			userSession.put(user.getUsername(), session.getId());
 			sessionUser.put(session.getId(), user.getUsername());

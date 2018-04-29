@@ -20,4 +20,10 @@ public interface UserAppCommunicationLocal {
 	public LastChatsResMsg getLastChats_JMS(String username);
 	
 	public LastChatsResMsg getLastChats_REST(String username);
+
+	public void logoutAttempt(String username);
+	
+	public void logoutAttempt_JMS(String username);
+	
+	public void logoutAttempt_REST(String username);
 }
