@@ -28,6 +28,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import ejb_beans.UserAppCommunicationLocal;
+import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
@@ -70,7 +71,6 @@ public class UserWebSocket {
 				else if(msg.equals("getLatestChat")) {
 					
 					handleGetLastChats(session);
-					session.getBasicRemote().sendText("LC");
 				}
 				
 			}
@@ -83,14 +83,7 @@ public class UserWebSocket {
 			}
 		}
 	}
-	private void handleGetLastChats(Session session) {
-		String username = sessionUser.get(session.getId());
-		if(username == null)
-			return;
-		
-		userAppCommunication.getLastChats(username);
-		
-	}
+	
 
 	@OnClose
 	public void close(Session session) {
@@ -98,6 +91,7 @@ public class UserWebSocket {
 		String username = sessionUser.get(session.getId());
 		userSession.remove(username);
 		sessionUser.remove(session);
+		//TODO ISLOGUJ TOG USERA
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
 	}
 	
@@ -118,6 +112,24 @@ public class UserWebSocket {
 		     return false;
 		  } 
 		}
+	
+	private void handleGetLastChats(Session session) {
+		String username = sessionUser.get(session.getId());
+		if(username == null)
+			return ;
+		try {
+			
+			ObjectMapper mapper = new ObjectMapper();
+			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
+			
+			String jsonObject = mapper.writeValueAsString(ret);
+			session.getBasicRemote().sendText(jsonObject);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	private void handleLoginMessage(Session session, String msg)
 	{
 		User user =null;

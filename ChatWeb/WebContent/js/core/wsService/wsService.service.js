@@ -23,6 +23,9 @@ angular.module('core.wsService')
 					   if(this.payload.username != undefined){
 						   $rootScope.user = this.payload;
 						   $state.go('home.chat');
+					   }else if(this.payload.chats != undefined){
+						   $rootScope.$broadcast('latestChats',this.payload.chats );
+						   
 					   }
 				   }
 				   alert(message.data);
