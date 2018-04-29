@@ -1,1 +1,16 @@
-<h1>Chat</h1>
+<h2>Latest chats:</h2>
+<div class="row no-gutters align-items-stretch">
+	<div ng-repeat="chat in $ctrl.chats"
+		class="card m-md-1 col-lg-4 col-md-6">
+			<div class="card-body">
+				<h3 class="card-title">
+						{{chat}}
+				</h3>
+			</div>
+	</div>
+</div>
+
+<textarea rows="10" cols="40" id="msgs" disabled></textarea><br>
+<input type="text" id="tekst" />
+<button id="send" class ='btn btn-custom'>Send</button>
+<br />

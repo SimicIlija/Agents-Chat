@@ -3,7 +3,14 @@
 angular.module('chat')
 	.component('myChat', {
 		templateUrl: 'part/chat/chat.template.html',
-		controller: function( $rootScope, $state) {
+		controller: function( $rootScope, $state,wsService,$scope) {
+			
+			wsService.getLatestChat();
+			this.chats = ['aaa','bbb','ccc'];
+			
+			$scope.$on('latestChats', function (event, arg) { 
+			    $scope.chats = arg;
+			  });
 			
 //			this.logOut = () => {
 //				UserAuthService.logOut().then( () => {

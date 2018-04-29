@@ -16,7 +16,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import model.User;
@@ -45,20 +45,27 @@ public class UserWebSocket {
 		User user =null;
 		try {
 			if (session.isOpen()) {
-				log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
-				ObjectMapper mapper = new ObjectMapper();
-				user = mapper.readValue(msg, User.class);
-				log.info(user.getEmail());
-				
-				// TODO provera logovanja i dodavanje tokena
-				
-				// dodaj sesiou u grupu ulogovanih
-				logedin.put(user, session);
-				logedinR.put(session, user);
-				
-				//posalji odgovor nazad
-				String jsonObject = mapper.writeValueAsString(user);
-				session.getBasicRemote().sendText(jsonObject);
+				if(isA(msg, User.class)) {
+					log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
+					ObjectMapper mapper = new ObjectMapper();
+					user = mapper.readValue(msg, User.class);
+					log.info(user.getEmail());
+					
+					// TODO provera logovanja i dodavanje tokena
+					
+					// dodaj sesiou u grupu ulogovanih
+					logedin.put(user, session);
+					logedinR.put(session, user);
+					
+					//posalji odgovor nazad
+					String jsonObject = mapper.writeValueAsString(user);
+					session.getBasicRemote().sendText(jsonObject);
+				}
+				else if(msg.equals("getLatestChat")) {
+					
+					//TODO nabavi par poslednjih chat-ova za ovog korisnika
+					session.getBasicRemote().sendText("LC");
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,5 +91,16 @@ public class UserWebSocket {
 		log.log(Level.SEVERE, "Gre�ka u sessiji: " + session.getId() + " u endpoint-u: " + this.hashCode() + ", tekst: " + t.getMessage());
 		t.printStackTrace();
 	}
+	
+	boolean isA(String json, Class expected) {
+		  try {
+		     ObjectMapper mapper = new ObjectMapper();
+		     mapper.readValue(json, expected);
+		     return true;
+		  } catch (Exception e) {
+		     e.printStackTrace();
+		     return false;
+		  } 
+		}
 	
 }

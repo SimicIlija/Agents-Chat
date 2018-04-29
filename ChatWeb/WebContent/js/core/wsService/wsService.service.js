@@ -15,12 +15,18 @@ angular.module('core.wsService')
 			   }
 			   
 			   this.socket.onmessage = function(message) {
-				   this.payload = JSON.parse(message.data);
-				   if(this.payload.email != undefined){
-					   $rootScope.user = this.payload;
-					   $state.go('home.chat');
+				   if(message.data == "LC"){
+					   $rootScope.$broadcast('latestChats',['eee','eee','eee'] );
+				   }
+				   else{ 
+					   this.payload = JSON.parse(message.data);
+					   if(this.payload.email != undefined){
+						   $rootScope.user = this.payload;
+						   $state.go('home.chat');
+					   }
 				   }
 				   alert(message.data);
+				   
 			   }
 			   
 			   socket.onclose = function() {
@@ -39,5 +45,12 @@ angular.module('core.wsService')
 				this.socket.send(JSON.stringify(data));
 			}
 		};
+		
+		 this.getLatestChat = () => {
+
+				if(this.socket != null){
+					this.socket.send("getLatestChat");
+				}
+			};
 		   
 	});
