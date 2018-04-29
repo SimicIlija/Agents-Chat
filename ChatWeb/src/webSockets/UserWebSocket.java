@@ -8,7 +8,9 @@ import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
+import javax.ejb.Stateless;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -25,6 +27,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import ejb_beans.UserAppCommunicationLocal;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
@@ -32,6 +35,7 @@ import jms_messages.UserAuthResMsgType;
 import model.User;
 
 @ServerEndpoint("/Socket")
+@Singleton
 public class UserWebSocket {
 	
 	Logger log = Logger.getLogger("Websockets endpoint");
@@ -40,6 +44,9 @@ public class UserWebSocket {
 	private static Map<Session,User> logedinR = new HashMap<>();
 
 	private static ArrayList<Session> sessions = new ArrayList<>();
+	
+	@EJB
+	UserAppCommunicationLocal userAppCommunication;
 	
 	@OnOpen
 	public void onOpen(Session session) {
@@ -55,6 +62,7 @@ public class UserWebSocket {
 		
 		try {
 			if (session.isOpen()) {
+				log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
 				
 				if(isA(msg, User.class)) {
 					handleLoginMessage(session, msg);
@@ -105,19 +113,19 @@ public class UserWebSocket {
 	{
 		User user =null;
 		try {
-			log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
+			
 			ObjectMapper mapper = new ObjectMapper();
 			user = mapper.readValue(msg, User.class);
 			log.info(user.getUsername());
 			
 			// TODO provera logovanja i dodavanje tokena
-				UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
-				ResteasyClient client = new ResteasyClientBuilder().build();
-				// TODO izmeniti da nije hardCoded adresa
-				ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
-				Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
-				UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
-				user = resMsg.getUser();
+			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
+//				ResteasyClient client = new ResteasyClientBuilder().build();
+//				// TODO izmeniti da nije hardCoded adresa
+//				ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
+//				Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
+			UserAuthResMsg resMsg = userAppCommunication.sendAuthAttempt(userAuthMsg);
+			user = resMsg.getUser();
 				
 			// dodaj sesiou u grupu ulogovanih
 			logedin.put(user, session);
