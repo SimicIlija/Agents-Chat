@@ -1,22 +1,22 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
+###target/
+###!.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
+###.apt_generated
+###.classpath
+###.factorypath
 ###.project
 ###.settings
-.springBeans
+###.springBeans
 
 ### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+###.idea
+###*.iws
+###*.iml
+###*.ipr
 
 ### NetBeans ###
-nbproject/private/
+###nbproject/private/
 build/
 nbbuild/
 dist/
@@ -24,9 +24,9 @@ nbdist/
 .nb-gradle/
 
 ### H2 Database file ###
-dbtest*
+###dbtest*
 
 ###META-INF/
-nano.save
+###nano.save
 img/
 
