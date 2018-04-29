@@ -1,6 +1,8 @@
 package ejb_beans;
 
 import javax.ejb.Local;
+
+import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
 
@@ -12,4 +14,10 @@ public interface UserAppCommunicationLocal {
 	public UserAuthResMsg sendAuthAttempt_JMS(UserAuthReqMsg userAuthMsg);
 	
 	public UserAuthResMsg sendAuthAttempt_REST(UserAuthReqMsg userAuthMsg);
+
+	public LastChatsResMsg getLastChats(String username);
+	
+	public LastChatsResMsg getLastChats_JMS(String username);
+	
+	public LastChatsResMsg getLastChats_REST(String username);
 }

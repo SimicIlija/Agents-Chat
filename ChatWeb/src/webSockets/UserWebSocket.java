@@ -69,7 +69,7 @@ public class UserWebSocket {
 				}
 				else if(msg.equals("getLatestChat")) {
 					
-					//TODO nabavi par poslednjih chat-ova za ovog korisnika
+					handleGetLastChats(session);
 					session.getBasicRemote().sendText("LC");
 				}
 				
@@ -83,6 +83,15 @@ public class UserWebSocket {
 			}
 		}
 	}
+	private void handleGetLastChats(Session session) {
+		String username = sessionUser.get(session.getId());
+		if(username == null)
+			return;
+		
+		userAppCommunication.getLastChats(username);
+		
+	}
+
 	@OnClose
 	public void close(Session session) {
 		sessions.remove(session);
@@ -120,10 +129,6 @@ public class UserWebSocket {
 			
 			// TODO provera logovanja i dodavanje tokena
 			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
-//				ResteasyClient client = new ResteasyClientBuilder().build();
-//				// TODO izmeniti da nije hardCoded adresa
-//				ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
-//				Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
 			UserAuthResMsg resMsg = userAppCommunication.sendAuthAttempt(userAuthMsg);
 			user = resMsg.getUser();
 				

@@ -3,10 +3,10 @@
 angular.module('chat')
 	.component('myChat', {
 		templateUrl: 'part/chat/chat.template.html',
-		controller: function( $rootScope, $state,wsService,$scope) {
+		controller: function( $rootScope, $state,wsService,$scope,$element) {
 			
 			wsService.getLatestChat();
-			 
+			this.display = $element.find('textarea'); 
 			$rootScope.chats = ['aaa','bbb','ccc'];
 			
 			$scope.$on('latestChats', function (event, arg) { 
@@ -28,6 +28,10 @@ angular.module('chat')
 //			};
 			this.send = () =>{
 				this.a = 3;
+			}
+			this.changeChat = (chat) =>
+			{
+				this.display.append(chat + "\n")
 			}
 		}
 	});
