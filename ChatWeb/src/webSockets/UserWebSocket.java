@@ -15,10 +15,19 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import jms_messages.UserAuthReqMsg;
+import jms_messages.UserAuthReqMsgType;
+import jms_messages.UserAuthResMsg;
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -49,10 +58,15 @@ public class UserWebSocket {
 					log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
 					ObjectMapper mapper = new ObjectMapper();
 					user = mapper.readValue(msg, User.class);
-					log.info(user.getEmail());
+					log.info(user.getUsername());
 					
 					// TODO provera logovanja i dodavanje tokena
-					
+						UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
+						ResteasyClient client = new ResteasyClientBuilder().build();
+						ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
+						Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
+						UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
+						user = resMsg.getUser();
 					// dodaj sesiou u grupu ulogovanih
 					logedin.put(user, session);
 					logedinR.put(session, user);
