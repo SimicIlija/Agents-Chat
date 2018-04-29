@@ -1,9 +1,17 @@
 package model;
 
-public class User {
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.NotSaved;
+import org.mongodb.morphia.annotations.Transient;
+
+@Entity
+public class User extends BaseDO {
 
 	private String username;
 	private String password;
+	
+	@NotSaved
+	@Transient
 	private Host host;
 	
 	public User() {}

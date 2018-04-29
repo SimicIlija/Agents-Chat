@@ -12,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.UserAuthMgmtLocal;
+import dataAccess.MongoConnection;
 import exceptions.UserAuthException;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
@@ -29,7 +30,12 @@ public class UserAuthRESTController {
 	@Path("/test")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String test(@Context HttpServletRequest request) {
-		
+		User u = new User("zika", "perapera");
+		try {
+			u = userAuthMgmt.register(u);
+		} catch (UserAuthException e) {
+			System.out.println(e.getResponseType());
+		}
 		return "OK";
 	}
 	
