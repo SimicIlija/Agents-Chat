@@ -40,8 +40,8 @@ public class UserWebSocket {
 	
 	Logger log = Logger.getLogger("Websockets endpoint");
 	
-	private static Map<User,Session> logedin = new HashMap<>();
-	private static Map<Session,User> logedinR = new HashMap<>();
+	private static Map<String,String> userSession = new HashMap<>();
+	private static Map<String,String> sessionUser = new HashMap<>();
 
 	private static ArrayList<Session> sessions = new ArrayList<>();
 	
@@ -86,9 +86,9 @@ public class UserWebSocket {
 	@OnClose
 	public void close(Session session) {
 		sessions.remove(session);
-		User user = logedinR.get(session);
-		logedin.remove(user);
-		logedinR.remove(session);
+		String username = sessionUser.get(session.getId());
+		userSession.remove(username);
+		sessionUser.remove(session);
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
 	}
 	
@@ -105,7 +105,7 @@ public class UserWebSocket {
 		     mapper.readValue(json, expected);
 		     return true;
 		  } catch (Exception e) {
-		     e.printStackTrace();
+		     System.out.println("CANT CONVERT!");
 		     return false;
 		  } 
 		}
@@ -128,8 +128,8 @@ public class UserWebSocket {
 			user = resMsg.getUser();
 				
 			// dodaj sesiou u grupu ulogovanih
-			logedin.put(user, session);
-			logedinR.put(session, user);
+			userSession.put(user.getUsername(), session.getId());
+			sessionUser.put(session.getId(), user.getUsername());
 			
 			//posalji odgovor nazad
 			String jsonObject = mapper.writeValueAsString(user);

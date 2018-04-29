@@ -6,10 +6,12 @@ angular.module('chat')
 		controller: function( $rootScope, $state,wsService,$scope) {
 			
 			wsService.getLatestChat();
-			this.chats = ['aaa','bbb','ccc'];
+			 
+			$rootScope.chats = ['aaa','bbb','ccc'];
 			
 			$scope.$on('latestChats', function (event, arg) { 
-			    $scope.chats = arg;
+				$rootScope.chats = arg;
+				$scope.$apply();
 			  });
 			
 //			this.logOut = () => {
@@ -24,5 +26,8 @@ angular.module('chat')
 //					}
 //				});
 //			};
+			this.send = () =>{
+				this.a = 3;
+			}
 		}
 	});

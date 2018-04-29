@@ -16,7 +16,7 @@ angular.module('core.wsService')
 			   
 			   this.socket.onmessage = function(message) {
 				   if(message.data == "LC"){
-					   $rootScope.$broadcast('latestChats',['eee','eee','eee'] );
+					   $rootScope.$broadcast('latestChats',['eee','ee','e'] );
 				   }
 				   else{ 
 					   this.payload = JSON.parse(message.data);
