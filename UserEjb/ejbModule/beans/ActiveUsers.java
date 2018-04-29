@@ -37,4 +37,13 @@ public class ActiveUsers {
 		}
 	}
 	
+	public Boolean removeUserByUsername(String username) {
+		if(activeUsers.containsKey(username)) {
+			activeUsers.remove(username);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }

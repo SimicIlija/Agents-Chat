@@ -1,10 +1,10 @@
 <h2>Latest chats:</h2>
 <div class="row no-gutters align-items-stretch">
-	<div ng-repeat="chat in $ctrl.chats"
+	<div ng-repeat="chat in $root.chats"
 		class="card m-md-1 col-lg-4 col-md-6">
 			<div class="card-body">
 				<h3 class="card-title">
-						{{chat}}
+						<a ng-click="$ctrl.changeChat(chat)">{{chat.usernames}}</a>
 				</h3>
 			</div>
 	</div>
@@ -12,5 +12,5 @@
 
 <textarea rows="10" cols="40" id="msgs" disabled></textarea><br>
 <input type="text" id="tekst" />
-<button id="send" class ='btn btn-custom'>Send</button>
+<button id="send" class ='btn btn-custom' ng-click='$ctrl.send()'>Send</button>
 <br />

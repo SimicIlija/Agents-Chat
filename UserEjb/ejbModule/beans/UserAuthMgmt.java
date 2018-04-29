@@ -50,10 +50,9 @@ public class UserAuthMgmt implements UserAuthMgmtLocal {
 	}
 
 	@Override
-	public User logOut(User user) {
-		if(activeUSers.removeUser(user))
-			return user;
-		return null;
+	public boolean logOut(String username) {
+		return activeUSers.removeUserByUsername(username);
+
 	}
 
 }

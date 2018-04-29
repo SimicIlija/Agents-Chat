@@ -3,13 +3,15 @@
 angular.module('chat')
 	.component('myChat', {
 		templateUrl: 'part/chat/chat.template.html',
-		controller: function( $rootScope, $state,wsService,$scope) {
+		controller: function( $rootScope, $state,wsService,$scope,$element) {
 			
 			wsService.getLatestChat();
-			this.chats = ['aaa','bbb','ccc'];
+			this.display = $element.find('textarea'); 
+			$rootScope.chats = ['aaa','bbb','ccc'];
 			
 			$scope.$on('latestChats', function (event, arg) { 
-			    $scope.chats = arg;
+				$rootScope.chats = arg;
+				$scope.$apply();
 			  });
 			
 //			this.logOut = () => {
@@ -24,5 +26,12 @@ angular.module('chat')
 //					}
 //				});
 //			};
+			this.send = () =>{
+				this.a = 3;
+			}
+			this.changeChat = (chat) =>
+			{
+				this.display.append(chat + "\n")
+			}
 		}
 	});

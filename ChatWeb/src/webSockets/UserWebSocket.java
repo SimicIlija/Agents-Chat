@@ -28,6 +28,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import ejb_beans.UserAppCommunicationLocal;
+import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
@@ -40,8 +41,8 @@ public class UserWebSocket {
 	
 	Logger log = Logger.getLogger("Websockets endpoint");
 	
-	private static Map<User,Session> logedin = new HashMap<>();
-	private static Map<Session,User> logedinR = new HashMap<>();
+	private static Map<String,String> userSession = new HashMap<>();
+	private static Map<String,String> sessionUser = new HashMap<>();
 
 	private static ArrayList<Session> sessions = new ArrayList<>();
 	
@@ -69,8 +70,7 @@ public class UserWebSocket {
 				}
 				else if(msg.equals("getLatestChat")) {
 					
-					//TODO nabavi par poslednjih chat-ova za ovog korisnika
-					session.getBasicRemote().sendText("LC");
+					handleGetLastChats(session);
 				}
 				
 			}
@@ -83,13 +83,21 @@ public class UserWebSocket {
 			}
 		}
 	}
+	
+
 	@OnClose
 	public void close(Session session) {
 		sessions.remove(session);
-		User user = logedinR.get(session);
-		logedin.remove(user);
-		logedinR.remove(session);
+		String username = sessionUser.get(session.getId());
+		
+		//radim logout ako je neko ulogovan
+		userAppCommunication.logoutAttempt(username);
+		
+		userSession.remove(username);
+		sessionUser.remove(session);
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
+		
+		
 	}
 	
 	@OnError
@@ -105,10 +113,29 @@ public class UserWebSocket {
 		     mapper.readValue(json, expected);
 		     return true;
 		  } catch (Exception e) {
-		     e.printStackTrace();
+		     System.out.println("CANT CONVERT!");
 		     return false;
 		  } 
 		}
+	
+	private void handleGetLastChats(Session session) {
+		String username = sessionUser.get(session.getId());
+		if(username == null)
+			return ;
+		try {
+			
+			ObjectMapper mapper = new ObjectMapper();
+			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
+			
+			String jsonObject = mapper.writeValueAsString(ret);
+			session.getBasicRemote().sendText(jsonObject);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	private void handleLoginMessage(Session session, String msg)
 	{
 		User user =null;
@@ -120,16 +147,14 @@ public class UserWebSocket {
 			
 			// TODO provera logovanja i dodavanje tokena
 			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
-//				ResteasyClient client = new ResteasyClientBuilder().build();
-//				// TODO izmeniti da nije hardCoded adresa
-//				ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
-//				Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
 			UserAuthResMsg resMsg = userAppCommunication.sendAuthAttempt(userAuthMsg);
 			user = resMsg.getUser();
-				
+			if(user == null)
+				return;
+			
 			// dodaj sesiou u grupu ulogovanih
-			logedin.put(user, session);
-			logedinR.put(session, user);
+			userSession.put(user.getUsername(), session.getId());
+			sessionUser.put(session.getId(), user.getUsername());
 			
 			//posalji odgovor nazad
 			String jsonObject = mapper.writeValueAsString(user);
