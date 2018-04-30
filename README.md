@@ -1,6 +1,7 @@
 # Agents-Chat
 Faza 1 za agente
-
-U UserEJB i ChatEJB: 
-  Build Path -> Libraries -> Add Jars -- dodati sve iz WEB-INF/lib
+<p>
+U UserEJB i ChatEJB: <br> 
+  Build Path -> Libraries -> Add Jars -- dodati sve iz WEB-INF/lib <br>
   Deployement Assembly -> Add -> Java Build Path Enteries -- takodje dodati sve to
+</p>
