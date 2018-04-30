@@ -10,16 +10,20 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import config.PropertiesSupplier;
+import cluster.UserClusterManagerLocal;
 import config.PropertiesSupplierLocal;
 import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
+import model.User;
 
 @Stateless
 public class UserAppCommunication implements UserAppCommunicationLocal{
 
+	@EJB
+	private UserClusterManagerLocal userClusterManager;
+	
 	@EJB
 	private PropertiesSupplierLocal prop;
 	
@@ -33,6 +37,14 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 //		}else {
 			ret = sendAuthAttempt_REST(userAuthMsg);
 //		}
+		
+		// Ako mi je logovanje bilo uspesno sad ja posaljem
+		// TODO kada odradim da mi UserApp obavestava ChatApp pa onda on obavestava sve ostale o novom logovanju onda preispitaj da li ovo treba
+		User user = ret.getUser();
+		if(user != null)
+			userClusterManager.addUserToActiveList(user);
+		
+		
 		return ret;
 	}
 

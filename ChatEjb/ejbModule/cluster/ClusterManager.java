@@ -13,7 +13,7 @@ import javax.ejb.Stateless;
 
 @Startup
 @Singleton
-public class ClusterManager {
+public class ClusterManager implements ClusterManagerLocal{
 
 	@PostConstruct
 	private void init () {

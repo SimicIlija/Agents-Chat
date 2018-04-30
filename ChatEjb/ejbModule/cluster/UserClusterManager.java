@@ -16,7 +16,7 @@ import model.User;
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Startup
 @Singleton
-public class UserClusterManager {
+public class UserClusterManager implements UserClusterManagerLocal{
 
 	private List<User> activeUsers;
 	

@@ -2,43 +2,33 @@ package webSockets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
-import javax.ejb.Stateless;
+import javax.jms.ObjectMessage;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import dto.MessageDTO;
 import ejb_beans.ChatAppCommunicationLocal;
 import ejb_beans.UserAppCommunicationLocal;
+import jms_messages.JMSMessageToWebSocket;
+import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.LastChatsResMsg;
+import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
-import jms_messages.UserAuthResMsgType;
 import jms_messages.WebSocketMessage;
 import jms_messages.WebSocketMessageType;
-import jms_messages.MessageReqMsg;
-
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -68,7 +58,7 @@ public class UserWebSocket {
 	} 
 
 	@OnMessage
-	public void onMessage(Session session, String msg, boolean last) {
+	public void onWSMessage(Session session, String msg, boolean last) {
 		
 		try {
 			if (session.isOpen()) {
@@ -223,6 +213,46 @@ public class UserWebSocket {
 			
 			session.getBasicRemote().sendText(wsmJSON);
 		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	// TODO TREBA DA SE STAVI ANOTACIJA @Override KAD SE URADI JMS
+	public void onMessage(javax.jms.Message arg0) {
+		ObjectMessage objectMessage = (ObjectMessage) arg0;
+		try {
+			JMSMessageToWebSocket message = (JMSMessageToWebSocket)objectMessage.getObject();
+			
+			if(message.getType() == JMSMessageToWebSocketType.PUSH_MESSAGE) {
+				MessageReqMsg messageReqMsg = (MessageReqMsg) message.getContent();
+				pushMessageToClient(messageReqMsg);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void pushMessageToClient(MessageReqMsg messageReqMsg) {
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			WebSocketMessage wsm = new WebSocketMessage();
+			wsm.setType(WebSocketMessageType.MESSAGE);
+			String content = mapper.writeValueAsString(messageReqMsg);
+			wsm.setContent(content);
+			String wsmJSON = mapper.writeValueAsString(wsm);
+			
+			// Nalazim na kojoj je sesiji taj user
+			String username = messageReqMsg.getUsernames().get(0);
+			String sessionId = userSession.get(username);
+			for(Session s :sessions)
+			{
+				if(s.getId().equals(sessionId)) {
+					s.getBasicRemote().sendText(wsmJSON);
+				}
+				break;
+			}
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
