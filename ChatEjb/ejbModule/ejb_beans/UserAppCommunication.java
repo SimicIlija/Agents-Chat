@@ -116,7 +116,7 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@Override
 	public void sendMessage(MessageReqMsg messageReqMsg) {
-boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
 		
 		// TODO kad Sima uradi JMS SKOLoniti komentare
 //		if(is_master) {
@@ -142,11 +142,7 @@ boolean is_master = prop.getProperty("IS_MASTER").equals("true");
 				
 	}
 
-	@Override
-	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	
 

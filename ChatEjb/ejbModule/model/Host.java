@@ -4,12 +4,21 @@ public class Host {
 
 	public String address;
 	public String name;
+	public int port;
 	
 	public Host() {}
-	public Host(String address, String name) {
+	public Host(String address, String name, int port) {
 		super();
 		this.address = address;
 		this.name = name;
+		this.port = port;
+	}
+	
+	public int getPort() {
+		return port;
+	}
+	public void setPort(int port) {
+		this.port = port;
 	}
 	public String getAddress() {
 		return address;

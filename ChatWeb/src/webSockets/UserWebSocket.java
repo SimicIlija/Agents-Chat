@@ -84,9 +84,6 @@ public class UserWebSocket {
 			}
 		}
 	}
-	
-
-	
 
 	private void handleWebSocketMessage(Session session, String msg) {
 		WebSocketMessage webSocketMessage;
