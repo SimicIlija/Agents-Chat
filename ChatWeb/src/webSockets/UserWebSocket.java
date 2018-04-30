@@ -27,12 +27,15 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import dto.MessageDTO;
 import ejb_beans.UserAppCommunicationLocal;
 import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
 import jms_messages.UserAuthResMsgType;
+import jms_messages.MessageReqMsg;
+
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -68,6 +71,9 @@ public class UserWebSocket {
 				if(isA(msg, User.class)) {
 					handleLoginMessage(session, msg);
 				}
+				else if(isA(msg,MessageReqMsg.class)) {
+					handleSendSessage(session,msg);
+				}
 				else if(msg.equals("getLatestChat")) {
 					
 					handleGetLastChats(session);
@@ -83,6 +89,8 @@ public class UserWebSocket {
 			}
 		}
 	}
+	
+
 	
 
 	@OnClose
@@ -117,6 +125,23 @@ public class UserWebSocket {
 		     return false;
 		  } 
 		}
+	
+	private void handleSendSessage(Session session, String msg) {
+		String username = sessionUser.get(session.getId());
+		if(username == null)
+			return ;
+		MessageReqMsg messageReqMsg= null;
+		try {
+			
+			ObjectMapper mapper = new ObjectMapper();
+			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
+			messageReqMsg.setSender(username);
+			userAppCommunication.sendMessage(messageReqMsg);
+				
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	private void handleGetLastChats(Session session) {
 		String username = sessionUser.get(session.getId());

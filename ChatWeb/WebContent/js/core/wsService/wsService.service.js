@@ -56,4 +56,18 @@ angular.module('core.wsService')
 				}
 			};
 		   
+		 this.sendMessage = (currentChat,content) => {
+
+			 	this.date = new Date();
+			 	this.currentTimeStamp = this.date.getTime()/1000;
+				if(this.socket != null){
+					this.message ={
+							chat: currentChat,
+							content: content,
+							sender : "",
+							timeStamp: this.currentTimeStamp
+					};
+					this.socket.send(JSON.stringify(this.message));
+				}
+			};
 	});

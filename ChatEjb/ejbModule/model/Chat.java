@@ -4,6 +4,8 @@ import java.util.List;
 
 public class Chat {
 
+	private int id;
+	
 	private List<String> usernames;
 	
 	private String adnim;
@@ -20,6 +22,15 @@ public class Chat {
 		this.adnim = adnim;
 		this.timeStamp = timeStamp;
 		this.messages = messages;
+	}
+
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public List<String> getUsernames() {
