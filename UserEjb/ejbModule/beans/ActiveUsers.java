@@ -10,7 +10,7 @@ import model.User;
 
 @Singleton
 @Startup
-public class ActiveUsers {
+public class ActiveUsers implements ActiveUsersLocal {
 	
 	private ConcurrentHashMap<String, User> activeUsers;
 	

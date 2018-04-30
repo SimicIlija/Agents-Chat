@@ -1,9 +1,24 @@
 package model;
 
-public class User {
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.NotSaved;
+import org.mongodb.morphia.annotations.Transient;
 
+@Entity
+public class User extends BaseDO {
+	
+	@Indexed(unique=true)
 	private String username;
+	
 	private String password;
+	
+	private String firstName;
+	
+	private String lastName;
+	
+	@NotSaved
+	@Transient
 	private Host host;
 	
 	public User() {}
@@ -14,11 +29,19 @@ public class User {
 		this.password = password;
 	}
 	
-	public User(String username, String password, Host host) {
+	public User(String username, String password, String firstName, String lastName, Host host) {
 		super();
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.host = host;
+	}
+	
+	public User(String username, String password, String firstName, String lastName) {
+		super();
+		this.username = username;
+		this.password = password;
 	}
 
 	public String getUsername() {
@@ -26,10 +49,6 @@ public class User {
 	}
 
 	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setEmail(String username) {
 		this.username = username;
 	}
 
@@ -44,6 +63,22 @@ public class User {
 	}
 	public void setHost(Host host) {
 		this.host = host;
+	}
+	
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 }

@@ -1,18 +1,10 @@
 package beans;
 
-import java.util.List;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.query.Query;
-
-import com.mongodb.DBObject;
-import dataAccess.MongoConnection;
-import dataAccess.User.UserDao;
+import dataAccess.User.UserServiceLocal;
 import exceptions.UserAuthException;
-import jms_messages.UserAuthResMsgType;
+import jms_messages.UserAuth.UserAuthResMsgType;
 import model.Host;
 import model.User;
 
@@ -20,39 +12,39 @@ import model.User;
 public class UserAuthMgmt implements UserAuthMgmtLocal {
 	
 	@EJB
-	ActiveUsers activeUSers;
+	ActiveUsersLocal activeUSers;
 	
 	@EJB
-	MongoConnection conn;
+	UserServiceLocal userService;
+	
 
 	@Override
 	public User register(User user) throws UserAuthException {
-		Datastore ds = conn.getDatastore();
-		Query<User> query = ds.createQuery(User.class);
-		query.field("username").equal(user.getUsername());
-		List<User> users = query.asList();
-		if(!(users == null || users.isEmpty()))
-			throw new UserAuthException(UserAuthResMsgType.USERNAME_EXISTS);
-		DBObject tmp = conn.getMorphia().toDBObject(user);
-		UserDao dao = new UserDao(ds);
-		dao.getCollection().insert(tmp);
+		if(user.getUsername() == null || user.getUsername().trim().isEmpty())
+			throw new UserAuthException(UserAuthResMsgType.REQUIRED_FIELD_EMPTY);
+		if(user.getPassword() == null || user.getPassword().trim().isEmpty() || user.getPassword().length() < 6)
+			throw new UserAuthException(UserAuthResMsgType.REQUIRED_FIELD_EMPTY);
+		//TODO proveriti ostala polja
+		userService.add(user);
+		user = userService.findOne(user.getUsername());
 		return user;
 	}
 
 	@Override
 	public User logIn(User user, Host host) throws UserAuthException {
-		// TODO login logika
-		user.setHost(host);
+		User userDb = userService.findOne(user.getUsername());
+		if(userDb == null || !userDb.getPassword().equals(user.getPassword()))
+			throw new UserAuthException(UserAuthResMsgType.INVALID_CREDENTIALS);
 		
-		if(activeUSers.addUser(user))
-			return user;
+		userDb.setHost(host);
+		if(activeUSers.addUser(userDb))
+			return userDb;
 		return null;
 	}
 
 	@Override
-	public boolean logOut(String username) {
-		return activeUSers.removeUserByUsername(username);
-
+	public boolean logOut(User user) {
+		return activeUSers.removeUser(user);
 	}
 
 }

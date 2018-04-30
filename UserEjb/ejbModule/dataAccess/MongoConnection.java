@@ -28,12 +28,10 @@ public class MongoConnection {
 		if (mongo == null) {
 			//logger
 			MongoClientOptions.Builder options = MongoClientOptions.builder()
-													.connectionsPerHost(10)
-													.maxConnectionIdleTime((60 * 1_000))
-													.maxConnectionLifeTime((120 * 1_000));
-													;
+													.connectionsPerHost(10);
 
-			MongoClientURI uri = new MongoClientURI("mongodb://localhost:27017", options);
+			//MongoClientURI uri = new MongoClientURI("mongodb://localhost:27017", options);
+			MongoClientURI uri = new MongoClientURI("mongodb://korisnik:uuda5ac0fANaM8HO@chatdb-shard-00-00-whha5.mongodb.net:27017,chatdb-shard-00-01-whha5.mongodb.net:27017,chatdb-shard-00-02-whha5.mongodb.net:27017/admin?ssl=true&replicaSet=ChatDB-shard-0&authSource=admin", options);
 			
 			try {
 				mongo = new MongoClient(uri);
@@ -63,7 +61,7 @@ public class MongoConnection {
 
 	public Datastore getDatastore() {
 		if (dataStore == null) {
-			String dbName = "testdb";
+			String dbName = "ChatDB";
 			dataStore = getMorphia().createDatastore(getMongo(), dbName);
 		}
 		return dataStore;

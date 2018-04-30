@@ -32,11 +32,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/gson-2.3.1.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/javax.servlet-api-3.1.0.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
@@ -118,6 +113,21 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/websocket-servlet-9.3.6.v20151106.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/jackson-annotations-2.4.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/jackson-core-2.4.1.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/jackson-databind-2.4.1.2.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
 		</attributes>

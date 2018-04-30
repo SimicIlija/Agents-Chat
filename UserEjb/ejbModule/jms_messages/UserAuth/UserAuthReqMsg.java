@@ -1,4 +1,4 @@
-package jms_messages;
+package jms_messages.UserAuth;
 
 import model.Host;
 import model.User;

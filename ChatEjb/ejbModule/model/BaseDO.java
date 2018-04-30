@@ -43,7 +43,7 @@ public class BaseDO {
 	public void setVersion(Long version) {
 		this.version = version;
 	}
-	
+
 }
 
 class ObjectID_Serializer extends JsonSerializer<ObjectId>{
