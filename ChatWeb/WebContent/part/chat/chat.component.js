@@ -4,6 +4,7 @@ angular.module('chat')
 	.component('myChat', {
 		templateUrl: 'part/chat/chat.template.html',
 		controller: function( $rootScope, $state,wsService,$scope,$element) {
+			this.currentChat = -1;
 			
 			wsService.getLatestChat();
 			this.display = $element.find('textarea'); 
@@ -27,11 +28,16 @@ angular.module('chat')
 //				});
 //			};
 			this.send = () =>{
-				this.a = 3;
+				wsService.sendMessage(this.currentChat,this.content);
+				$element.find('textarea').val($element.find('textarea').val() +$rootScope.user.username+" : "+ this.content + "\n");
 			}
 			this.changeChat = (chat) =>
 			{
-				this.display.append(chat + "\n")
+				this.currentChat = chat.id;
+				this.display.val("");
+				chat.messages.forEach(function(element){
+					$element.find('textarea').val($element.find('textarea').val() +element.sender+" : "+ element.content + "\n");
+				});
 			}
 		}
 	});

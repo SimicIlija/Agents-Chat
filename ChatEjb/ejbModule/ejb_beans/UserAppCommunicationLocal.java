@@ -3,6 +3,7 @@ package ejb_beans;
 import javax.ejb.Local;
 
 import jms_messages.LastChatsResMsg;
+import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
 
@@ -26,4 +27,13 @@ public interface UserAppCommunicationLocal {
 	public void logoutAttempt_JMS(String username);
 	
 	public void logoutAttempt_REST(String username);
+
+	public void sendMessage(MessageReqMsg messageReqMsg);
+	
+	public void sendMessageToUserApp_JMS(MessageReqMsg messageReqMsg);
+
+	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg);
+	
+	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg);
+
 }

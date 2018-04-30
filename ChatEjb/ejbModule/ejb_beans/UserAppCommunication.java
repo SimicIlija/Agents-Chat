@@ -13,6 +13,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import config.PropertiesSupplier;
 import config.PropertiesSupplierLocal;
 import jms_messages.LastChatsResMsg;
+import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
 
@@ -98,10 +99,10 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@Override
 	public void logoutAttempt_JMS(String username) {
-		// TODO Auto-generated method stub
+		// TODO Simo uradi
 		
 	}
-
+	
 	@Override
 	public void logoutAttempt_REST(String username) {
 		if(username == null)
@@ -112,5 +113,41 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		Response response = target.request().delete();
 		
 	}
+
+	@Override
+	public void sendMessage(MessageReqMsg messageReqMsg) {
+boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// TODO kad Sima uradi JMS SKOLoniti komentare
+//		if(is_master) {
+//			sendMessageToUserApp_JMS(messageReqMsg);
+//		}else {
+			sendMessageToUserApp_REST(messageReqMsg);
+//		}
+		
+	}
+
+	@Override
+	public void sendMessageToUserApp_JMS(MessageReqMsg messageReqMsg) {
+		// TODO Nema sime da nam nije umro?
+		
+	}
+
+	@Override
+	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg) {
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		// TODO Skloniti hard coded putanju 
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/receiveMessage");
+		Response response = target.request().post(Entity.entity(messageReqMsg, MediaType.APPLICATION_JSON));
+				
+	}
+
+	@Override
+	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 
 }
