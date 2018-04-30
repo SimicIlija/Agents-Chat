@@ -34,6 +34,8 @@ import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
 import jms_messages.UserAuthResMsgType;
+import jms_messages.WebSocketMessage;
+import jms_messages.WebSocketMessageType;
 import jms_messages.MessageReqMsg;
 
 import model.User;
@@ -62,23 +64,16 @@ public class UserWebSocket {
 	} 
 
 	@OnMessage
-	public void echoTextMessage(Session session, String msg, boolean last) {
+	public void onMessage(Session session, String msg, boolean last) {
 		
 		try {
 			if (session.isOpen()) {
 				log.info("Websocket endpoint: " + this.hashCode() + " primio: " + msg + " u sesiji: " + session.getId());
 				
-				if(isA(msg, User.class)) {
-					handleLoginMessage(session, msg);
+				if(isA(msg, WebSocketMessage.class)) {
+					handleWebSocketMessage(session, msg);
 				}
-				else if(isA(msg,MessageReqMsg.class)) {
-					handleSendSessage(session,msg);
-				}
-				else if(msg.equals("getLatestChat")) {
-					
-					handleGetLastChats(session);
-				}
-				
+						
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -92,6 +87,33 @@ public class UserWebSocket {
 	
 
 	
+
+	private void handleWebSocketMessage(Session session, String msg) {
+		WebSocketMessage webSocketMessage;
+		try {
+			
+			ObjectMapper mapper = new ObjectMapper();
+			webSocketMessage = mapper.readValue(msg, WebSocketMessage.class);
+						
+			if(webSocketMessage.getType() == WebSocketMessageType.LOGIN)
+			{
+				handleLoginMessage(session, webSocketMessage.getContent());
+			}
+			else if(webSocketMessage.getType() == WebSocketMessageType.MESSAGE)
+			{
+				handleSendMessage(session, webSocketMessage.getContent());
+			}
+			else if(webSocketMessage.getType() == WebSocketMessageType.LAST_CHATS)
+			{
+				handleGetLastChats(session, webSocketMessage.getContent());
+			}
+			
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
 
 	@OnClose
 	public void close(Session session) {
@@ -126,7 +148,7 @@ public class UserWebSocket {
 		  } 
 		}
 	
-	private void handleSendSessage(Session session, String msg) {
+	private void handleSendMessage(Session session, String msg) {
 		String username = sessionUser.get(session.getId());
 		if(username == null)
 			return ;
@@ -143,7 +165,7 @@ public class UserWebSocket {
 		}
 	}
 	
-	private void handleGetLastChats(Session session) {
+	private void handleGetLastChats(Session session,String numberOfChats) {
 		String username = sessionUser.get(session.getId());
 		if(username == null)
 			return ;

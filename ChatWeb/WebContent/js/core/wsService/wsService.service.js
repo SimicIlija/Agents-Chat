@@ -39,20 +39,28 @@ angular.module('core.wsService')
 		   } catch(exception) {
 			   console.log("Error!");
 		   }
-	   this.login = (data) => {
-		   data.host = {};
-		   // TODO dodati host name iz fajla koji se izvlaci
-		   data.host.name = "iz fajla";
-		   data.host.address = url.hostname + ":" + url.port;
+		   
+		   
+	   this.login = (user) => {
+		   this.message ={
+			"type" : "LOGIN",
+			"content" : JSON.stringify(user)
+		   };
+		   
 			if(this.socket != null){
-				this.socket.send(JSON.stringify(data));
+				this.socket.send(JSON.stringify(this.message));
 			}
 		};
 		
+		
 		 this.getLatestChat = () => {
 
+			 this.message ={
+						"type" : "LAST_CHATS",
+						"content" : "5"
+					   };
 				if(this.socket != null){
-					this.socket.send("getLatestChat");
+					this.socket.send(JSON.stringify(this.message));
 				}
 			};
 		   
@@ -61,12 +69,18 @@ angular.module('core.wsService')
 			 	this.date = new Date();
 			 	this.currentTimeStamp = this.date.getTime()/1000;
 				if(this.socket != null){
-					this.message ={
+					
+					this.contentMessage ={
 							chat: currentChat,
 							content: content,
 							sender : "",
 							timeStamp: this.currentTimeStamp
 					};
+					 this.message ={
+								"type" : "MESSAGE",
+								"content" : JSON.stringify(this.contentMessage)
+					};
+					 
 					this.socket.send(JSON.stringify(this.message));
 				}
 			};
