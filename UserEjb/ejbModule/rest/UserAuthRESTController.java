@@ -14,10 +14,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.UserAuthMgmtLocal;
+import dataAccess.User.UserServiceLocal;
 import exceptions.UserAuthException;
-import jms_messages.UserAuthReqMsg;
-import jms_messages.UserAuthResMsg;
-import jms_messages.UserAuthResMsgType;
+import jms_messages.UserAuth.UserAuthReqMsg;
+import jms_messages.UserAuth.UserAuthResMsg;
+import jms_messages.UserAuth.UserAuthResMsgType;
 import model.User;
 
 @Path("/user-auth")
@@ -27,11 +28,19 @@ public class UserAuthRESTController {
 	@EJB
 	UserAuthMgmtLocal userAuthMgmt;
 	
+	@EJB
+	UserServiceLocal userService;
+	
 	@GET
 	@Path("/test")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String test(@Context HttpServletRequest request) {
-		
+		User u = new User("test", "testtest");
+		try {
+			u = userAuthMgmt.register(u);
+		} catch (UserAuthException e) {
+			System.out.println(e.getResponseType());
+		}
 		return "OK";
 	}
 	
@@ -67,7 +76,7 @@ public class UserAuthRESTController {
 	@Path("/logout/{username}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String logOut(@PathParam("username") String username) {
-		boolean ret = userAuthMgmt.logOut(username);
+		boolean ret = userAuthMgmt.logOut(new User(username, null));
 		if(ret)
 			return "ok";
 		else 

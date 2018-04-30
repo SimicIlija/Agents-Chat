@@ -1,6 +1,6 @@
 package exceptions;
 
-import jms_messages.UserAuthResMsgType;
+import jms_messages.UserAuth.UserAuthResMsgType;
 
 public class UserAuthException extends Exception{
 	private static final long serialVersionUID = 1L;

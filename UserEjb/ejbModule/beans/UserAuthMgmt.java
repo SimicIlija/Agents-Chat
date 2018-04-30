@@ -2,8 +2,9 @@ package beans;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-
+import dataAccess.User.UserServiceLocal;
 import exceptions.UserAuthException;
+import jms_messages.UserAuth.UserAuthResMsgType;
 import model.Host;
 import model.User;
 
@@ -11,28 +12,39 @@ import model.User;
 public class UserAuthMgmt implements UserAuthMgmtLocal {
 	
 	@EJB
-	ActiveUsers activeUSers;
+	ActiveUsersLocal activeUSers;
+	
+	@EJB
+	UserServiceLocal userService;
+	
 
 	@Override
 	public User register(User user) throws UserAuthException {
-		// TODO logika registracije
+		if(user.getUsername() == null || user.getUsername().trim().isEmpty())
+			throw new UserAuthException(UserAuthResMsgType.REQUIRED_FIELD_EMPTY);
+		if(user.getPassword() == null || user.getPassword().trim().isEmpty() || user.getPassword().length() < 6)
+			throw new UserAuthException(UserAuthResMsgType.REQUIRED_FIELD_EMPTY);
+		//TODO proveriti ostala polja
+		userService.add(user);
+		user = userService.findOne(user.getUsername());
 		return user;
 	}
 
 	@Override
 	public User logIn(User user, Host host) throws UserAuthException {
-		// TODO login logika
-		user.setHost(host);
+		User userDb = userService.findOne(user.getUsername());
+		if(userDb == null || !userDb.getPassword().equals(user.getPassword()))
+			throw new UserAuthException(UserAuthResMsgType.INVALID_CREDENTIALS);
 		
-		if(activeUSers.addUser(user))
-			return user;
+		userDb.setHost(host);
+		if(activeUSers.addUser(userDb))
+			return userDb;
 		return null;
 	}
 
 	@Override
-	public boolean logOut(String username) {
-		return activeUSers.removeUserByUsername(username);
-
+	public boolean logOut(User user) {
+		return activeUSers.removeUser(user);
 	}
 
 }
