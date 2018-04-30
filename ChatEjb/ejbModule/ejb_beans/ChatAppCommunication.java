@@ -9,7 +9,7 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal{
 
 	@Override
 	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

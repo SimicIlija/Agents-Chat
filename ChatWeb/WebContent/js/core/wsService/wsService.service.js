@@ -15,21 +15,20 @@ angular.module('core.wsService')
 			   }
 			   
 			   this.socket.onmessage = function(message) {
-				   if(message.data == "LC"){
-					   $rootScope.$broadcast('latestChats',['eee','ee','e'] );
-				   }
-				   else{ 
-					   this.payload = JSON.parse(message.data);
-					   if(this.payload.username != undefined){
-						   $rootScope.user = this.payload;
-						   $state.go('home.chat');
-					   }else if(this.payload.chats != undefined){
-						   $rootScope.$broadcast('latestChats',this.payload.chats );
-						   
-					   }
-				   }
-				   alert(message.data);
 				   
+				  
+				   this.payload = JSON.parse(message.data);
+				   this.contentObjest = JSON.parse(this.payload.content);
+				   
+				   if(this.payload.type == 'LOGIN_SUCCESS'){
+					   $rootScope.user = this.contentObjest;
+					   $state.go('home.chat');
+				   }
+				   else if(this.payload.type == 'LAST_CHATS'){
+					   $rootScope.$broadcast('latestChats',this.contentObjest );
+				   }
+				   
+				   alert(message.data);
 			   }
 			   
 			   socket.onclose = function() {

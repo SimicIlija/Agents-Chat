@@ -28,6 +28,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import dto.MessageDTO;
+import ejb_beans.ChatAppCommunicationLocal;
 import ejb_beans.UserAppCommunicationLocal;
 import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuthReqMsg;
@@ -53,6 +54,9 @@ public class UserWebSocket {
 	
 	@EJB
 	UserAppCommunicationLocal userAppCommunication;
+	
+	@EJB
+	ChatAppCommunicationLocal chatAppCommunication;
 	
 	@OnOpen
 	public void onOpen(Session session) {
@@ -151,11 +155,16 @@ public class UserWebSocket {
 			return ;
 		MessageReqMsg messageReqMsg= null;
 		try {
-			
 			ObjectMapper mapper = new ObjectMapper();
 			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
 			messageReqMsg.setSender(username);
+			
+			//send message to userApp for saving 
 			userAppCommunication.sendMessage(messageReqMsg);
+			
+			//send message to other users
+			chatAppCommunication.sendMessageToOtherUsers(messageReqMsg);
+			
 				
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -171,8 +180,13 @@ public class UserWebSocket {
 			ObjectMapper mapper = new ObjectMapper();
 			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
 			
-			String jsonObject = mapper.writeValueAsString(ret);
-			session.getBasicRemote().sendText(jsonObject);
+			WebSocketMessage wsm = new WebSocketMessage();
+			wsm.setType(WebSocketMessageType.LAST_CHATS);
+			String content = mapper.writeValueAsString(ret);
+			wsm.setContent(content);
+			String wsmJSON = mapper.writeValueAsString(wsm);
+			
+			session.getBasicRemote().sendText(wsmJSON);
 			
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -201,10 +215,16 @@ public class UserWebSocket {
 			sessionUser.put(session.getId(), user.getUsername());
 			
 			//posalji odgovor nazad
-			String jsonObject = mapper.writeValueAsString(user);
-			session.getBasicRemote().sendText(jsonObject);
+			WebSocketMessage wsm = new WebSocketMessage();
+			wsm.setType(WebSocketMessageType.LOGIN_SUCCESS);
+			String content = mapper.writeValueAsString(user);
+			wsm.setContent(content);
+			String wsmJSON = mapper.writeValueAsString(wsm);
+			
+			session.getBasicRemote().sendText(wsmJSON);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
+	
 }
