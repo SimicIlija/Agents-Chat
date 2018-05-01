@@ -1,5 +1,6 @@
 package dataAccess.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -7,11 +8,10 @@ import javax.ejb.Stateless;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 import com.mongodb.DBObject;
 import dataAccess.MongoConnection;
-import exceptions.UserAuthException;
-import jms_messages.UserAuth.UserAuthResMsgType;
 import model.User;
 
 @Stateless
@@ -39,21 +39,22 @@ public class UserService implements UserServiceLocal {
 	}
 
 	@Override
-	public void add(User input) throws UserAuthException{
+	public User add(User input) {
 		User user = findOne(input.getUsername());
 		if(user == null) {
+			input.setId(new ObjectId());
 			Datastore ds = conn.getDatastore();
 			DBObject tmp = conn.getMorphia().toDBObject(input);
 			UserDao dao = new UserDao(ds);
 			dao.getCollection().insert(tmp);
+			return input;
 		} else {
-			throw new UserAuthException(UserAuthResMsgType.USERNAME_EXISTS);
+			return null;
 		}
 	}
 
 	@Override
 	public void edit(User input) {
-		// TODO remove
 		Datastore ds = conn.getDatastore();
 		DBObject tmp = conn.getMorphia().toDBObject(input);
 		UserDao dao = new UserDao(ds);
@@ -62,8 +63,28 @@ public class UserService implements UserServiceLocal {
 
 	@Override
 	public List<User> search(String search) {
+		if(search == null || search.trim().isEmpty())
+			return null;
+		search = search.trim();
+		String[] splitTmp = search.split(" ");
+		List<String> split = new ArrayList<>();
+		for (String s : splitTmp) {
+			if(!s.isEmpty())
+				split.add(s);
+		}
+		if(split.isEmpty())
+			return null;
+		Datastore ds = conn.getDatastore();
+		Query<User> query = ds.createQuery(User.class);
+		for (String s : split) {
+			query.or(
+				query.criteria("username").contains(s),
+				query.criteria("firstName").contains(s),
+				query.criteria("lastName").contains(s)
+			);
+		}
 		
-		return null;
+		return query.asList();
 	}
 	
 }

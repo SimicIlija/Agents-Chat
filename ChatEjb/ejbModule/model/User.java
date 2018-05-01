@@ -1,8 +1,11 @@
 package model;
 
+import java.util.List;
+
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.NotSaved;
+import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.annotations.Transient;
 
 @Entity
@@ -16,6 +19,9 @@ public class User extends BaseDO {
 	private String firstName;
 	
 	private String lastName;
+	
+	@Reference
+	private List<User> friends;
 	
 	@NotSaved
 	@Transient
@@ -80,5 +86,13 @@ public class User extends BaseDO {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+	
+	public List<User> getFriends() {
+		return friends;
+	}
 
+	public void setFriends(List<User> friends) {
+		this.friends = friends;
+	}
+	
 }

@@ -12,7 +12,7 @@ import model.User;
 public interface UserFriendsMgmtLocal {
 	
 	public List<User> searchUsers(String search);
-	public void addFriend(ObjectId user, ObjectId add);
-	public void removeFriend(ObjectId user, ObjectId remove);
+	public Boolean addFriend(ObjectId user, ObjectId add);
+	public Boolean removeFriend(ObjectId user, ObjectId remove);
 	
 }

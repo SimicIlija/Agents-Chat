@@ -2,9 +2,7 @@ package model;
 
 import java.util.List;
 
-public class Chat {
-
-	private int id;
+public class Chat extends BaseDO {
 	
 	private List<String> usernames;
 	
@@ -22,15 +20,6 @@ public class Chat {
 		this.adnim = adnim;
 		this.timeStamp = timeStamp;
 		this.messages = messages;
-	}
-
-	
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public List<String> getUsernames() {

@@ -1,12 +1,14 @@
 package jms_messages.UserFriends;
 
+import org.bson.types.ObjectId;
+
 import model.Host;
 
 public class UserFriendsReqMsg {
 	
-private String sessionId;
+	private String search;
 	
-	String request;
+	private ObjectId addRemove;
 
 	private Host host;
 	
@@ -14,19 +16,18 @@ private String sessionId;
 
 	public UserFriendsReqMsg() {}
 
-	public UserFriendsReqMsg(String request, String sessionId, Host host, UserFriendsReqMsgType type) {
-		this.request = request;
-		this.sessionId = sessionId;
+	public UserFriendsReqMsg(String search, Host host, UserFriendsReqMsgType type) {
+		this.search = search;
 		this.host = host;
 		this.type = type;
 	}
 
-	public String getSessionId() {
-		return sessionId;
+	public String getSearch() {
+		return search;
 	}
 
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
+	public void setSearch(String search) {
+		this.search = search;
 	}
 
 	public Host getHost() {
@@ -35,6 +36,14 @@ private String sessionId;
 
 	public void setHost(Host host) {
 		this.host = host;
+	}
+
+	public ObjectId getAddRemove() {
+		return addRemove;
+	}
+
+	public void setAddRemove(ObjectId addRemove) {
+		this.addRemove = addRemove;
 	}
 
 	public UserFriendsReqMsgType getType() {

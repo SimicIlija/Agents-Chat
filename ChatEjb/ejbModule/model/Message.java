@@ -1,6 +1,6 @@
 package model;
 
-public class Message {
+public class Message extends BaseDO {
 
 	private String sender;
 	

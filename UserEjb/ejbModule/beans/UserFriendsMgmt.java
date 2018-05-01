@@ -18,20 +18,33 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 	
 	@Override
 	public List<User> searchUsers(String search) {
-		// TODO Auto-generated method stub
-		return null;
+		return userService.search(search);
 	}
 
 	@Override
-	public void addFriend(ObjectId user, ObjectId add) {
-		// TODO Auto-generated method stub
-
+	public Boolean addFriend(ObjectId user, ObjectId add) {
+		User u = userService.findOne(user);
+		if(u == null)
+			return false;
+		User a = userService.findOne(add);
+		if(a == null)
+			return false;
+		u.getFriends().add(a);
+		userService.edit(u);
+		return true;
 	}
 
 	@Override
-	public void removeFriend(ObjectId user, ObjectId remove) {
-		// TODO Auto-generated method stub
-
+	public Boolean removeFriend(ObjectId user, ObjectId remove) {
+		User u = userService.findOne(user);
+		if(u == null)
+			return false;
+		User r = userService.findOne(remove);
+		if(r == null)
+			return false;
+		u.getFriends().removeIf(p -> p.getId().equals(remove));
+		userService.edit(u);
+		return true;
 	}
 
 }

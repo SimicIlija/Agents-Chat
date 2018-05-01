@@ -1,5 +1,7 @@
 package jms_messages.UserFriends;
 
-public class UserFriendsReqMsgType {
+public enum UserFriendsReqMsgType {
+	
+	SEARCH, ADD_FRIEND, REMOVE_FRIEND
 
 }

@@ -25,8 +25,9 @@ public class UserAuthMgmt implements UserAuthMgmtLocal {
 		if(user.getPassword() == null || user.getPassword().trim().isEmpty() || user.getPassword().length() < 6)
 			throw new UserAuthException(UserAuthResMsgType.REQUIRED_FIELD_EMPTY);
 		//TODO proveriti ostala polja
-		userService.add(user);
-		user = userService.findOne(user.getUsername());
+		user = userService.add(user);
+		if(user == null)
+			throw new UserAuthException(UserAuthResMsgType.USERNAME_EXISTS);
 		return user;
 	}
 

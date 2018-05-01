@@ -2,15 +2,12 @@ package rest;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.UserAuthMgmtLocal;
@@ -30,19 +27,6 @@ public class UserAuthRESTController {
 	
 	@EJB
 	UserServiceLocal userService;
-	
-	@GET
-	@Path("/test")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String test(@Context HttpServletRequest request) {
-		User u = new User("test", "testtest");
-		try {
-			u = userAuthMgmt.register(u);
-		} catch (UserAuthException e) {
-			System.out.println(e.getResponseType());
-		}
-		return "OK";
-	}
 	
 	@POST
 	@Path("/register")

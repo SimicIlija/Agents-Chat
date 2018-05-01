@@ -32,8 +32,8 @@ public class DB_Access implements DB_AccessLocal{
 		ArrayList<String> users = new ArrayList<>();
 		users.add("ddd@ddd.com");
 		users.add("aaa@aaa.com");
-		chat1 = new Chat(users, null, (long)1525024791, messages);
-		chat1.setId(1);
+		chat1 = new Chat(users, null, (long)1525024791);
+		//chat1.setId(1);
 		
 		Message m4 = new Message("ddd@ddd.com", (long)1525024791, "first");
 		Message m5 = new Message("ooo@ooo.com", (long)1525024795, "second");
@@ -45,8 +45,8 @@ public class DB_Access implements DB_AccessLocal{
 		ArrayList<String> users1 = new ArrayList<>();
 		users1.add("ooo@ooo.com");
 		users1.add("ddd@ddd.com");
-		chat2 = new Chat(users1, null, (long)1525024791, messages1);
-		chat2.setId(2);
+		chat2 = new Chat(users1, null, (long)1525024791);
+		//chat2.setId(2);
 		
 		Message m7 = new Message("ccc@ccc.com", (long)1525024791, "first");
 		Message m8 = new Message("eee@eee.com", (long)1525024795, "second");
@@ -58,8 +58,8 @@ public class DB_Access implements DB_AccessLocal{
 		ArrayList<String> users2 = new ArrayList<>();
 		users2.add("ccc@ccc.com");
 		users2.add("eee@eee.com");
-		chat3 = new Chat(users2, null, (long)1525024791, messages2);
-		chat3.setId(3);
+		chat3 = new Chat(users2, null, (long)1525024791);
+		//chat3.setId(3);
 		
 		chats = new ArrayList<>();
 		
@@ -88,9 +88,9 @@ public class DB_Access implements DB_AccessLocal{
 	@Override
 	public void saveMessage(MessageReqMsg messageReqMsg) {
 		for(Chat chat:chats) {
-			if(chat.getId() == messageReqMsg.getChat() ) {
-				chat.getMessages().add(new Message(messageReqMsg.getSender(), messageReqMsg.getTimeStamp(), messageReqMsg.getContent()));
-			}
+			//if(chat.getId() == messageReqMsg.getChat() ) {
+			//	chat.getMessages().add(new Message(messageReqMsg.getSender(), messageReqMsg.getTimeStamp(), messageReqMsg.getContent()));
+			//}
 			break;
 		}
 		

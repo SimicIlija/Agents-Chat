@@ -1,8 +1,12 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.NotSaved;
+import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.annotations.Transient;
 
 @Entity
@@ -17,6 +21,9 @@ public class User extends BaseDO {
 	
 	private String lastName;
 	
+	@Reference
+	private List<User> friends;
+	
 	@NotSaved
 	@Transient
 	private Host host;
@@ -27,6 +34,7 @@ public class User extends BaseDO {
 		super();
 		this.username = username;
 		this.password = password;
+		this.friends = new ArrayList<>();
 	}
 	
 	public User(String username, String password, String firstName, String lastName, Host host) {
@@ -34,6 +42,7 @@ public class User extends BaseDO {
 		this.username = username;
 		this.password = password;
 		this.host = host;
+		this.friends = new ArrayList<>();
 	}
 
 	public String getUsername() {
@@ -75,6 +84,14 @@ public class User extends BaseDO {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public List<User> getFriends() {
+		return friends;
+	}
+
+	public void setFriends(List<User> friends) {
+		this.friends = friends;
 	}
 	
 }

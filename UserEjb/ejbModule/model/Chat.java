@@ -1,10 +1,11 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Chat {
+import org.mongodb.morphia.annotations.Reference;
 
-	private int id;
+public class Chat extends BaseDO {
 	
 	private List<String> usernames;
 	
@@ -12,25 +13,17 @@ public class Chat {
 	
 	private Long timeStamp;
 	
+	@Reference
 	private List<Message> messages;
 
 	public Chat() {}
 	
-	public Chat(List<String> usernames, String adnim, Long timeStamp, List<Message> messages) {
+	public Chat(List<String> usernames, String adnim, Long timeStamp) {
 		super();
 		this.usernames = usernames;
 		this.adnim = adnim;
 		this.timeStamp = timeStamp;
-		this.messages = messages;
-	}
-
-	
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
+		this.messages = new ArrayList<>();
 	}
 
 	public List<String> getUsernames() {
