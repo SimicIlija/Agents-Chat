@@ -34,6 +34,6 @@ public interface UserAppCommunicationLocal {
 
 	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg);
 	
-	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg);
+	
 
 }
