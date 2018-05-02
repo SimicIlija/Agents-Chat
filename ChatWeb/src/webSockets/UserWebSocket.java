@@ -255,8 +255,9 @@ public class UserWebSocket implements MessageListener{
 			{
 				if(s.getId().equals(sessionId)) {
 					s.getBasicRemote().sendText(wsmJSON);
+					break;
 				}
-				break;
+				
 			}
 		}catch(Exception e) {
 			e.printStackTrace();

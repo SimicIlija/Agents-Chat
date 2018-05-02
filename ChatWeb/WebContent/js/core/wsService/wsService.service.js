@@ -27,6 +27,9 @@ angular.module('core.wsService')
 				   else if(this.payload.type == 'LAST_CHATS'){
 					   $rootScope.$broadcast('latestChats',this.contentObjest );
 				   }
+				   else if(this.payload.type == 'MESSAGE'){
+					   $rootScope.$broadcast('MESSAGE',this.contentObjest );
+				   }
 				   
 				   alert(message.data);
 			   }

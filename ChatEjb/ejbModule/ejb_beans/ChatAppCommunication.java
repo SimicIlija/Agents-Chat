@@ -52,7 +52,6 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 		// ovo je sve za test
 		usernames = new ArrayList<>();
 		usernames.add("proba");
-		messageReqMsg.setContent("poruka");
 		// kraj testa
 
 		usernames.remove(messageReqMsg.getSender());
@@ -73,6 +72,7 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 						JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 						message.setType(JMSMessageToWebSocketType.PUSH_MESSAGE);
 						message.setContent(messageReqMsg);
+						
 						try {
 							System.out.println("Saljem poruku");
 							ObjectMessage objectMessage = context.createObjectMessage();

@@ -14,7 +14,10 @@ angular.module('chat')
 				$rootScope.chats = arg.chats;
 				$scope.$apply();
 			  });
-			
+			$scope.$on('MESSAGE', function (event, arg) { 
+				$element.find('textarea').val($element.find('textarea').val() +arg.sender+" : "+ arg.content + "\n");
+				//$scope.$apply();
+			  });
 //			this.logOut = () => {
 //				UserAuthService.logOut().then( () => {
 //					$rootScope.user = null;
