@@ -29,4 +29,5 @@ nbdist/
 ###META-INF/
 ###nano.save
 img/
+UserEjb/ejbModule/dataAccess/MongoConnection.java
 
