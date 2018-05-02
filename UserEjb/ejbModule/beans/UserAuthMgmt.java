@@ -37,7 +37,8 @@ public class UserAuthMgmt implements UserAuthMgmtLocal {
 		if(userDb == null || !userDb.getPassword().equals(user.getPassword()))
 			throw new UserAuthException(UserAuthResMsgType.INVALID_CREDENTIALS);
 		
-		userDb.setHost(host);
+		// Host je vec podesen
+		userDb.setHost(user.getHost());
 		if(activeUSers.addUser(userDb))
 			return userDb;
 		return null;

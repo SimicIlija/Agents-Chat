@@ -16,6 +16,7 @@ import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
+import model.Host;
 import model.User;
 
 @Stateless
@@ -30,6 +31,17 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@Override
 	public UserAuthResMsg sendAuthAttempt(UserAuthReqMsg userAuthMsg) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// Podesavanje hosta 
+		Host host = new Host();
+		String address = prop.getProperty("LOCATION");
+		host.setAddress(address);
+		String port = prop.getProperty("PORT");
+		host.setPort(Integer.parseInt(port));
+		String name = prop.getProperty("NAME_OF_NODE");
+		host.setName(name);
+		userAuthMsg.getUser().setHost(host);
+		
 		UserAuthResMsg ret =null;
 		// TODO kad Sima uradi JMS SKOLoniti komentare
 //		if(is_master) {

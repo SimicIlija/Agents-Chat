@@ -150,7 +150,7 @@ public class UserWebSocket {
 			messageReqMsg.setSender(username);
 			
 			//send message to userApp for saving 
-			userAppCommunication.sendMessage(messageReqMsg);
+			//userAppCommunication.sendMessage(messageReqMsg);
 			
 			//send message to other users
 			chatAppCommunication.sendMessageToOtherUsers(messageReqMsg);

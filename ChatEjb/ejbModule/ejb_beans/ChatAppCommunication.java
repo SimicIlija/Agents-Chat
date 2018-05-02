@@ -37,7 +37,7 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal{
 		
 		// ovo je sve za test
 		usernames= new ArrayList<>();
-		usernames.add("test");
+		usernames.add("proba");
 		// kraj testa
 		
 		usernames.remove(messageReqMsg.getSender());

@@ -1,6 +1,8 @@
 package jms_messages;
 
 import java.util.List;
+import org.bson.types.ObjectId;
+
 
 public class MessageReqMsg {
 
@@ -10,20 +12,23 @@ public class MessageReqMsg {
 	
 	private String content;
 	
-	private Long chat;
+	//private ObjectId chat;
 	
 	private List<String> usernames;
 
 	public MessageReqMsg() {}
 	
-	public MessageReqMsg(String sender, Long timeStamp, String content, Long chat, List<String> usernames) {
+	
+
+	public MessageReqMsg(String sender, Long timeStamp, String content, List<String> usernames) {
 		super();
 		this.sender = sender;
 		this.timeStamp = timeStamp;
 		this.content = content;
-		this.chat = chat;
 		this.usernames = usernames;
 	}
+
+
 
 	public List<String> getUsernames() {
 		return usernames;
@@ -57,13 +62,15 @@ public class MessageReqMsg {
 		this.content = content;
 	}
 
-	public Long getChat() {
-		return chat;
-	}
+//	public ObjectId getChat() {
+//		return chat;
+//	}
+//
+//	public void setChat(ObjectId chat) {
+//		this.chat = chat;
+//	}
 
-	public void setChat(Long chat) {
-		this.chat = chat;
-	}
+
 	
 	
 }

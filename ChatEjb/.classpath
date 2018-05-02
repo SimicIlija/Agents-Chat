@@ -67,7 +67,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/mongo-java-driver-3.2.2.jar">
+	<classpathentry kind="lib" path="ejbModule/WEB-INF/lib/mongo-java-driver-3.2.2.jar" sourcepath="/home/horva/.m2/repository/org/mongodb/mongo-java-driver/3.2.2/mongo-java-driver-3.2.2-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../lib"/>
 		</attributes>
