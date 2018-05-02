@@ -73,7 +73,7 @@ angular.module('core.wsService')
 				if(this.socket != null){
 					
 					this.contentMessage ={
-							//chat: currentChat,
+							chat: currentChat,
 							content: content,
 							sender : "",
 							timeStamp: this.currentTimeStamp

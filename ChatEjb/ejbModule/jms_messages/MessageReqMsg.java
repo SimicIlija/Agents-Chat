@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import org.bson.types.ObjectId;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import model.ObjectIdMapping;
+
 
 public class MessageReqMsg implements Serializable{
 
@@ -13,7 +18,9 @@ public class MessageReqMsg implements Serializable{
 	
 	private String content;
 	
-	//private ObjectId chat;
+	@JsonSerialize(using = ObjectIdMapping.ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
+	private ObjectId chat;
 	
 	private List<String> usernames;
 
@@ -63,13 +70,13 @@ public class MessageReqMsg implements Serializable{
 		this.content = content;
 	}
 
-//	public ObjectId getChat() {
-//		return chat;
-//	}
-//
-//	public void setChat(ObjectId chat) {
-//		this.chat = chat;
-//	}
+	public ObjectId getChat() {
+		return chat;
+	}
+
+	public void setChat(ObjectId chat) {
+		this.chat = chat;
+	}
 
 
 	
