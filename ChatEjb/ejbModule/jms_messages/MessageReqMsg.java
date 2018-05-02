@@ -1,10 +1,11 @@
 package jms_messages;
 
+import java.io.Serializable;
 import java.util.List;
 import org.bson.types.ObjectId;
 
 
-public class MessageReqMsg {
+public class MessageReqMsg implements Serializable{
 
 	private String sender;
 	

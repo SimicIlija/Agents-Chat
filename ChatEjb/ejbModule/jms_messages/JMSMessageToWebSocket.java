@@ -1,6 +1,8 @@
 package jms_messages;
 
-public class JMSMessageToWebSocket {
+import java.io.Serializable;
+
+public class JMSMessageToWebSocket implements Serializable{
 
 	private JMSMessageToWebSocketType type;
 	

@@ -18,6 +18,11 @@ angular.module('agent-chat')
 				url: 'chat',
 				component: 'myChat'
 			})
+			.state({
+				name: 'home.friends',
+				url: 'friends',
+				component: 'friendsComponent'
+			})
 //			.state({
 //				name: 'home.chart',
 //				url: '^/chart/:id?monthTime',

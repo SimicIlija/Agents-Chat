@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
+import javax.ejb.MessageDriven;
 import javax.ejb.Singleton;
+import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -32,8 +35,10 @@ import jms_messages.WebSocketMessageType;
 import model.User;
 
 @ServerEndpoint("/Socket")
-@Singleton
-public class UserWebSocket {
+@MessageDriven(activationConfig = {
+		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+		@ActivationConfigProperty(propertyName = "destination", propertyValue = "queue/wsQueue") })
+public class UserWebSocket implements MessageListener{
 	
 	Logger log = Logger.getLogger("Websockets endpoint");
 	
@@ -217,8 +222,9 @@ public class UserWebSocket {
 		}
 	}
 	
-	// TODO TREBA DA SE STAVI ANOTACIJA @Override KAD SE URADI JMS
+	@Override
 	public void onMessage(javax.jms.Message arg0) {
+		System.out.println("Stigla poruka");
 		ObjectMessage objectMessage = (ObjectMessage) arg0;
 		try {
 			JMSMessageToWebSocket message = (JMSMessageToWebSocket)objectMessage.getObject();
