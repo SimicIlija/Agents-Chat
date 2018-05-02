@@ -40,7 +40,6 @@ public class Test {
 	@Path("/test")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String test(@Context HttpServletRequest request) {
-		chatAppCommunication.sendMessageToOtherUsers(new MessageReqMsg());
 		return "OK";
 	}
 

@@ -18,8 +18,8 @@ public class MessageReqMsg implements Serializable{
 	
 	private String content;
 	
-	@JsonSerialize(using = ObjectIdMapping.ObjectIdSerializer.class)
-	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
+	@JsonSerialize(using = model.ObjectIdMapping.ObjectIdSerializer.class)
+	@JsonDeserialize(using = model.ObjectIdMapping.ObjectIdDeserializer.class)
 	private ObjectId chat;
 	
 	private List<String> usernames;

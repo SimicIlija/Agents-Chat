@@ -34,6 +34,7 @@ import jms_messages.WebSocketMessage;
 import jms_messages.WebSocketMessageType;
 import model.User;
 
+
 @ServerEndpoint("/Socket")
 @MessageDriven(activationConfig = {
 		@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
@@ -148,17 +149,17 @@ public class UserWebSocket implements MessageListener{
 		String username = sessionUser.get(session.getId());
 		if(username == null)
 			return ;
-		MessageReqMsg messageReqMsg= null;
+		//MessageReqMsg messageReqMsg= null;
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
-			messageReqMsg.setSender(username);
+//			ObjectMapper mapper = new ObjectMapper();
+//			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
+//			messageReqMsg.setSender(username);
 			
 			//send message to userApp for saving 
 			//userAppCommunication.sendMessage(messageReqMsg);
 			
 			//send message to other users
-			chatAppCommunication.sendMessageToOtherUsers(messageReqMsg);
+			chatAppCommunication.sendMessageToOtherUsers(msg, username);
 			
 				
 		}catch(Exception e) {

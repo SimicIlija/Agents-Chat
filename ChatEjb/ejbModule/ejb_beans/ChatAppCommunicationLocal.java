@@ -7,5 +7,5 @@ import jms_messages.MessageReqMsg;
 @Local
 public interface ChatAppCommunicationLocal {
 
-	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg);
+	public void sendMessageToOtherUsers(String msg,String username);
 }

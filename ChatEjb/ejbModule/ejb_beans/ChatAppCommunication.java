@@ -21,6 +21,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cluster.UserClusterManagerLocal;
 import config.PropertiesSupplierLocal;
 import jms_messages.JMSMessageToWebSocket;
@@ -44,7 +46,16 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 	private Destination destination;
 
 	@Override
-	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg) {
+	public void sendMessageToOtherUsers(String msg,String senderUsername) {
+		
+		MessageReqMsg messageReqMsg= null;
+		try {
+		ObjectMapper mapper = new ObjectMapper();
+		messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
+		messageReqMsg.setSender(senderUsername);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 		// TODO na osnovu chat id uzmi taj chat iz baze, vidi ko je sve u njemu i
 		// dobices listu usera tog chat-a
 		List<String> usernames; // = ono sta chat iz base kaze da su useri ALI BEZ ONOGA KO SALJE
