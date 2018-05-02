@@ -5,5 +5,6 @@ angular.module('home', [
 	'home.sidebar',
 	'userAuth',
 	'core.wsService',
-	'chat'
+	'chat',
+	'friends'
 ]);
