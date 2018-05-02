@@ -19,7 +19,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ejb_beans.ChatAppCommunicationLocal;
 import ejb_beans.UserAppCommunicationLocal;
@@ -175,6 +175,7 @@ public class UserWebSocket implements MessageListener{
 			
 			ObjectMapper mapper = new ObjectMapper();
 			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
+			
 			
 			WebSocketMessage wsm = new WebSocketMessage();
 			wsm.setType(WebSocketMessageType.LAST_CHATS);
