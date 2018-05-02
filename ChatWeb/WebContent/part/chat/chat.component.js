@@ -11,7 +11,7 @@ angular.module('chat')
 			$rootScope.chats = ['aaa','bbb','ccc'];
 			
 			$scope.$on('latestChats', function (event, arg) { 
-				$rootScope.chats = arg;
+				$rootScope.chats = arg.chats;
 				$scope.$apply();
 			  });
 			

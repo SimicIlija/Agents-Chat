@@ -78,5 +78,7 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal{
 		}
 		
 	}
+	
+	
 
 }
