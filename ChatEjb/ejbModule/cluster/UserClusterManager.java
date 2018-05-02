@@ -31,12 +31,21 @@ public class UserClusterManager implements UserClusterManagerLocal{
 	@Lock(LockType.WRITE)
 	public void addUserToActiveList(User user)
 	{
+		// TODO obavesti userApp da je dodat novi aktivni user
 		activeUsers.add(user);
+	}
+	
+	@Lock(LockType.WRITE)
+	public void removeUserFroActiveList(User user) {
+		
+		// TODO obavesti userApp da je sklonjen ativni korisnik
+		activeUsers.remove(user);
 	}
 	
 	@Lock(LockType.READ)
 	public List<User> getAllActiveUsers()
 	{
+		
 		return activeUsers;
 	}
 	
