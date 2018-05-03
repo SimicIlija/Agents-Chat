@@ -91,7 +91,6 @@ public class UserMDB implements MessageListener {
 				}
 			}
 		} catch (JMSException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

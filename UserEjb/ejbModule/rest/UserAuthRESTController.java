@@ -69,6 +69,7 @@ public class UserAuthRESTController {
 		try {
 			user = userAuthMgmt.logIn(msg.getUser(), msg.getHost()); 
 			if(user != null) {
+				
 				JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 				message.setType(JMSMessageToWebSocketType.NEW_ACITE_USER);
 				ObjectMapper mapper = new ObjectMapper();
@@ -81,7 +82,6 @@ public class UserAuthRESTController {
 					JMSProducer producer = context.createProducer();
 					producer.send(destination, objectMessage);
 				} catch (JsonProcessingException | JMSException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
