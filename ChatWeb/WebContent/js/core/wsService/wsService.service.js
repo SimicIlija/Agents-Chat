@@ -30,8 +30,11 @@ angular.module('core.wsService')
 				   else if(this.payload.type == 'MESSAGE'){
 					   $rootScope.$broadcast('MESSAGE',this.contentObjest );
 				   }
+				   else if(this.payload.type == 'USER_FRIENDS_RES') {
+					   $rootScope.$broadcast(this.payload.type, this.contentObjest);
+				   }
 				   
-				   alert(message.data);
+				   //alert(message.data);
 			   }
 			   
 			   socket.onclose = function() {

@@ -1,20 +1,28 @@
 package jms_messages.UserFriends;
 
+import java.io.Serializable;
 import java.util.List;
 
+import model.Host;
 import model.User;
 
-public class UserFriendsResMsg {
+public class UserFriendsResMsg implements Serializable {
 	
 	private List<User> user;
+	
+	private Host host;
+	
+	private String sessionId;
 	
 	private UserFriendsResMsgType type;
 
 	public UserFriendsResMsg() {}
 
-	public UserFriendsResMsg(List<User> user, UserFriendsResMsgType type) {
+	public UserFriendsResMsg(List<User> user, Host host, String sessionId, UserFriendsResMsgType type) {
 		this.user = user;
 		this.type = type;
+		this.host = host;
+		this.sessionId = sessionId;
 	}
 
 	public List<User> getUser() {
@@ -31,6 +39,22 @@ public class UserFriendsResMsg {
 
 	public void setType(UserFriendsResMsgType type) {
 		this.type = type;
+	}
+
+	public Host getHost() {
+		return host;
+	}
+
+	public void setHost(Host host) {
+		this.host = host;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 	
 }

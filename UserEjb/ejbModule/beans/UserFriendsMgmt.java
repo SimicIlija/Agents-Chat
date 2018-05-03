@@ -75,6 +75,14 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 		User a = userService.findOne(add);
 		if(a == null)
 			return null;
+		for (User uIt : u.getFriends()) {
+			uIt.getId().equals(add);
+			return u;
+		}
+		for (User uIt : u.getFriendReq()) {
+			uIt.getId().equals(add);
+			return u;
+		}
 		u.getFriendReq().add(a);
 		userService.edit(u);
 		return u;

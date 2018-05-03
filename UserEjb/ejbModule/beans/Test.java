@@ -39,7 +39,6 @@ public class Test {
 		User u1 = new User("proba", "probaproba", "Proba", "Probic", null);
 		User u2 = new User("test", "testtest", "Test", "Testic", null);
 		u1 = userService.add(u1);
-		u2.getFriends().add(u1);
 		userService.add(u2);
 		
 		ArrayList<String> users = new ArrayList<>();

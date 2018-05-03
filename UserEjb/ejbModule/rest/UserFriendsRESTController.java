@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import beans.UserFriendsMgmtLocal;
+import dataAccess.User.UserServiceLocal;
 import jms_messages.UserFriends.UserFriendsReqMsg;
 import jms_messages.UserFriends.UserFriendsReqMsgType;
 import jms_messages.UserFriends.UserFriendsResMsg;
@@ -25,6 +26,9 @@ public class UserFriendsRESTController {
 	@EJB
 	UserFriendsMgmtLocal userFriensMgmt;
 	
+	@EJB
+	private UserServiceLocal userService;
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -34,7 +38,7 @@ public class UserFriendsRESTController {
 		UserFriendsResMsgType type = null;
 		if(msg.getType() == UserFriendsReqMsgType.SEARCH) {
 			ret = userFriensMgmt.searchUsers(msg.getSearch());
-			return new UserFriendsResMsg(ret, UserFriendsResMsgType.SEARCH);
+			return new UserFriendsResMsg(ret, msg.getHost(), msg.getSessionId(), UserFriendsResMsgType.SEARCH);
 		} else if(msg.getType() == UserFriendsReqMsgType.FRIEND_REQUEST) {
 			u = userFriensMgmt.friendRequest(msg.getUser(), msg.getAddRemove());
 			type = UserFriendsResMsgType.SENT_REQUEST;
@@ -47,11 +51,14 @@ public class UserFriendsRESTController {
 		} else if(msg.getType() == UserFriendsReqMsgType.REMOVE_FRIEND) {
 			u = userFriensMgmt.removeFriend(msg.getUser(), msg.getAddRemove());
 			type = UserFriendsResMsgType.REMOVED_FRIEND;
+		} else if(msg.getType() == UserFriendsReqMsgType.UPDATE) {
+			u = userService.findOne(msg.getUser());
+			type = UserFriendsResMsgType.UPDATE;
 		}
 		if(u == null)
-			return new UserFriendsResMsg(null, UserFriendsResMsgType.ERROR);
+			return new UserFriendsResMsg(null,msg.getHost(), msg.getSessionId(), UserFriendsResMsgType.ERROR);
 		ret.add(u);
-		return new UserFriendsResMsg(ret, type);
+		return new UserFriendsResMsg(ret,msg.getHost(), msg.getSessionId(), type);
 	}
 	
 //	@POST

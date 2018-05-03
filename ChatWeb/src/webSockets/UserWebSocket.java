@@ -37,6 +37,8 @@ import jms_messages.UserFriendsReqMsg;
 import jms_messages.UserFriendsResMsg;
 import jms_messages.WebSocketMessage;
 import jms_messages.WebSocketMessageType;
+import jms_messages.UserFriendsReqMsgType;
+import jms_messages.UserFriendsResMsgType;
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -264,6 +266,9 @@ public class UserWebSocket implements MessageListener {
 				session.getBasicRemote().sendText(wsmJSON);
 				
 			}
+			if(message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
+				handleUserFriendsRes((String)message.getContent());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -301,11 +306,41 @@ public class UserWebSocket implements MessageListener {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			UserFriendsReqMsg msg = mapper.readValue(content, UserFriendsReqMsg.class);
+			msg.setSessionId(session.getId());
 			userAppCommunication.sendUserFriendsReqMsg(msg);
 			//TODO obraditi odgovor
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void handleUserFriendsRes(String json) {
+		ObjectMapper mapper = new ObjectMapper();
+		UserFriendsResMsg msg = null;
+		try {
+			msg = mapper.readValue(json, UserFriendsResMsg.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+			System.out.println(json);
+			Session session = null;
+			for (Session s : sessions) {
+				if (s.getId().equals(msg.getSessionId())) {
+					session = s;
+				}
+			}
+			if(session == null)
+				return;
+			WebSocketMessage wsm = new WebSocketMessage();
+			wsm.setType(WebSocketMessageType.USER_FRIENDS_RES);
+			wsm.setContent(json);
+			try {
+				session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 }

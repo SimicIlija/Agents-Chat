@@ -1,25 +1,38 @@
 package jms_messages.UserFriends;
 
+import java.io.Serializable;
+
 import org.bson.types.ObjectId;
 
-import model.Host;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class UserFriendsReqMsg {
+import model.Host;
+import model.ObjectIdMapping;
+
+public class UserFriendsReqMsg implements Serializable {
 	
 	private String search;
 	
+	@JsonSerialize(using = ObjectIdMapping.ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
 	private ObjectId user;
 	
+	@JsonSerialize(using = ObjectIdMapping.ObjectIdSerializer.class)
+	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
 	private ObjectId addRemove;
 
 	private Host host;
+	
+	private String sessionId;
 	
 	private UserFriendsReqMsgType type;
 
 	public UserFriendsReqMsg() {}
 
-	public UserFriendsReqMsg(Host host, UserFriendsReqMsgType type) {
+	public UserFriendsReqMsg(Host host, String sessionId, UserFriendsReqMsgType type) {
 		this.host = host;
+		this.sessionId = sessionId;
 		this.type = type;
 	}
 
@@ -61,6 +74,14 @@ public class UserFriendsReqMsg {
 
 	public void setUser(ObjectId user) {
 		this.user = user;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 	
 }

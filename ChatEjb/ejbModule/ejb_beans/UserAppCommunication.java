@@ -251,6 +251,20 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-friends");
 		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 		UserFriendsResMsg resMsg = response.readEntity(UserFriendsResMsg.class);
+		
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.USER_FRIENDS_RES);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 
 
