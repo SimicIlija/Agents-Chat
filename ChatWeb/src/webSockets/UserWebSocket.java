@@ -239,6 +239,11 @@ public class UserWebSocket implements MessageListener {
 				ObjectMapper mapper = new ObjectMapper();
 				UserAuthResMsg userAuthResMsg = mapper.readValue(json, UserAuthResMsg.class);
 				User user = userAuthResMsg.getUser();
+				
+				// TODO SIMO OVDE NISI PAZIO DA LI USER MOZE BITI NULL KONTAM OD PRILIKE IZ ZBOG CEPA ALI JA SAM SAMO VRATIO NULL PA TI VIDI JEL TO OK
+				if(user == null)
+					return;
+					
 				String id = userAuthResMsg.getSessionId();
 				userSession.put(user.getUsername(), id);
 				sessionUser.put(id, user.getUsername());
