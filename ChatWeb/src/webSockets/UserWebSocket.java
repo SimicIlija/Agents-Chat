@@ -27,6 +27,7 @@ import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
+import jms_messages.MessageReqMsg_JMS;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
@@ -149,17 +150,17 @@ public class UserWebSocket implements MessageListener{
 		String username = sessionUser.get(session.getId());
 		if(username == null)
 			return ;
-		//MessageReqMsg messageReqMsg= null;
+		MessageReqMsg messageReqMsg= null;
 		try {
-//			ObjectMapper mapper = new ObjectMapper();
-//			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
-//			messageReqMsg.setSender(username);
+			ObjectMapper mapper = new ObjectMapper();
+			messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
+			messageReqMsg.setSender(username);
 			
 			//send message to userApp for saving 
-			//userAppCommunication.sendMessage(messageReqMsg);
+			userAppCommunication.sendMessage(messageReqMsg);
 			
 			//send message to other users
-			chatAppCommunication.sendMessageToOtherUsers(msg, username);
+			chatAppCommunication.sendMessageToOtherUsers(messageReqMsg);
 			
 				
 		}catch(Exception e) {
@@ -232,26 +233,26 @@ public class UserWebSocket implements MessageListener{
 			JMSMessageToWebSocket message = (JMSMessageToWebSocket)objectMessage.getObject();
 			
 			if(message.getType() == JMSMessageToWebSocketType.PUSH_MESSAGE) {
-				MessageReqMsg messageReqMsg = (MessageReqMsg) message.getContent();
-				pushMessageToClient(messageReqMsg);
+				MessageReqMsg_JMS messageReqMsg_JMS = (MessageReqMsg_JMS) message.getContent();
+				pushMessageToClient(messageReqMsg_JMS);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void pushMessageToClient(MessageReqMsg messageReqMsg) {
+	private void pushMessageToClient(MessageReqMsg_JMS messageReqMsg_JMS) {
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			WebSocketMessage wsm = new WebSocketMessage();
 			wsm.setType(WebSocketMessageType.MESSAGE);
-			String content = mapper.writeValueAsString(messageReqMsg);
+			String content = mapper.writeValueAsString(messageReqMsg_JMS);
 			wsm.setContent(content);
 			String wsmJSON = mapper.writeValueAsString(wsm);
 			
 			// Nalazim na kojoj je sesiji taj user
-			String username = messageReqMsg.getUsernames().get(0);
+			String username = messageReqMsg_JMS.getUsernames().get(0);
 			String sessionId = userSession.get(username);
 			for(Session s :sessions)
 			{

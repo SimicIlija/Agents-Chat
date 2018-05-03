@@ -1,5 +1,7 @@
 package model;
 
+import java.io.Serializable;
+
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Property;
@@ -8,7 +10,7 @@ import org.mongodb.morphia.annotations.Version;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class BaseDO {
+public class BaseDO implements Serializable{
 	
 	@Id
 	@Property("id")

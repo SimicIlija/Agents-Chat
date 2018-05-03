@@ -1,11 +1,12 @@
 package model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mongodb.morphia.annotations.Reference;
 
-public class Chat extends BaseDO {
+public class Chat extends BaseDO implements Serializable{
 	
 	private List<String> usernames;
 	

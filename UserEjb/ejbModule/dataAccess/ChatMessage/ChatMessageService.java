@@ -31,7 +31,7 @@ public class ChatMessageService implements ChatMessageServiceLocal {
 	}
 
 	@Override
-	public Chat findOneChat(Object id) {
+	public Chat findOneChat(ObjectId id) {
 		Datastore ds = conn.getDatastore();
 		List<Chat> chat = ds.find(Chat.class, "id", id).asList();
 		if(chat == null || chat.isEmpty() || chat.size() > 1)

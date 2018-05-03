@@ -1,6 +1,5 @@
 package ejb_beans;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,9 @@ import config.PropertiesSupplierLocal;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.MessageReqMsg;
+import jms_messages.MessageReqMsg_JMS;
 import model.User;
+import model.Usernames;
 
 @Stateless
 public class ChatAppCommunication implements ChatAppCommunicationLocal {
@@ -46,24 +47,26 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 	private Destination destination;
 
 	@Override
-	public void sendMessageToOtherUsers(String msg,String senderUsername) {
+	public void sendMessageToOtherUsers(MessageReqMsg messageReqMsg) {
 		
-		MessageReqMsg messageReqMsg= null;
-		try {
-		ObjectMapper mapper = new ObjectMapper();
-		messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
-		messageReqMsg.setSender(senderUsername);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		// TODO na osnovu chat id uzmi taj chat iz baze, vidi ko je sve u njemu i
-		// dobices listu usera tog chat-a
-		List<String> usernames; // = ono sta chat iz base kaze da su useri ALI BEZ ONOGA KO SALJE
+//		MessageReqMsg messageReqMsg= null;
+//		try {
+//		ObjectMapper mapper = new ObjectMapper();
+//		messageReqMsg = mapper.readValue(msg, MessageReqMsg.class);
+//		messageReqMsg.setSender(senderUsername);
+//		}catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+		// Na osnovu chat id uzmi taj chat iz baze, vidi ko je sve u njemu i dobices listu usera tog chat-a
+		String chatId = messageReqMsg.getChat().toString();
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		String targetString = "http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/chat/getUsers/"+chatId;
+		ResteasyWebTarget target = client.target(targetString);
+		Response response = target.request(MediaType.APPLICATION_JSON).get();
+		Usernames usernamesClass	= response.readEntity(Usernames.class);	
+		List<String> usernames = usernamesClass.getUsernames();
 
-		// ovo je sve za test
-		usernames = new ArrayList<>();
-		usernames.add("proba");
-		// kraj testa
 
 		usernames.remove(messageReqMsg.getSender());
 		messageReqMsg.setUsernames(usernames);
@@ -79,10 +82,12 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 					onlyReceiver.add(username);
 					messageReqMsg.setUsernames(onlyReceiver);
 
-					if (user.getHost().getName().equals(currentHostName)) {
+					// Ovo je alternativni dto koji nema ObjectId 
+					MessageReqMsg_JMS reqJMS = new MessageReqMsg_JMS(messageReqMsg);
+					if ( user.getHost().getName().equals(currentHostName)) {
 						JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 						message.setType(JMSMessageToWebSocketType.PUSH_MESSAGE);
-						message.setContent(messageReqMsg);
+						message.setContent(reqJMS);
 						
 						try {
 							System.out.println("Saljem poruku");
@@ -91,16 +96,15 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 							JMSProducer producer = context.createProducer();
 							producer.send(destination, objectMessage);
 						} catch (JMSException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} else {
-						ResteasyClient client = new ResteasyClientBuilder().build();
-						ResteasyWebTarget target = client.target("http://" + user.getHost().getAddress() + ":"
+						 client = new ResteasyClientBuilder().build();
+						 target = client.target("http://" + user.getHost().getAddress() + ":"
 								+ user.getHost().getPort() + "/ChatWeb/rest/chat/messageToPush");
 
-						Response response = target.request()
-								.post(Entity.entity(messageReqMsg, MediaType.APPLICATION_JSON));
+						 response = target.request()
+								.post(Entity.entity(reqJMS, MediaType.APPLICATION_JSON));
 					}
 				}
 			}
