@@ -1,5 +1,5 @@
 <div class="container">
-    <h2>Friends list : </h2>
+    <h2>Friends: </h2>
     <table class="table table-bordered table-hover table-sm table-dark">
         <thead>
             <tr>
@@ -9,14 +9,36 @@
                 <th>Remove</th>
             </tr>
         </thead>
-        <tbody ng-repeat="user in friendsVm.myFriends">
+        <tbody ng-repeat="user in friendsVm.user.friends">
             <th>
                 {{user.username}}
             </th>
             <th>{{user.firstName}}</th>
             <th>{{user.lastName}}</th>
             <th>
-                <button type="button" ng-click="friendsVm.removeFriend(user.username)" class="btn btn-danger">Remove from friends</button>
+                <button type="button" ng-click="friendsVm.removeFriend(user.id)" class="btn btn-danger">Remove from friends</button>
+            </th>
+        </tbody>
+    </table>
+    <h2>Requests: </h2>
+    <table class="table table-bordered table-hover table-sm table-dark">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Accept/Decline</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="user in friendsVm.user.friendReq">
+            <th>
+                {{user.username}}
+            </th>
+            <th>{{user.firstName}}</th>
+            <th>{{user.lastName}}</th>
+            <th>
+                <button type="button" ng-click="friendsVm.acceptReq(user.id)" class="btn btn-danger">Accept</button>
+                <button type="button" ng-click="friendsVm.declineReq(user.id)" class="btn btn-danger">Decline</button>
             </th>
         </tbody>
     </table>
@@ -32,4 +54,26 @@
         </span>
         <br>
     </form>
+    <div class="container">
+    	<table class="table table-bordered table-hover table-sm table-dark">
+	        <thead>
+	            <tr>
+	                <th>Username</th>
+	                <th>Firstname</th>
+	                <th>Lastname</th>
+	                <th>Send Request</th>
+	            </tr>
+	        </thead>
+	        <tbody ng-repeat="user in friendsVm.searchResults">
+	            <th>
+	                {{user.username}}
+	            </th>
+	            <th>{{user.firstName}}</th>
+	            <th>{{user.lastName}}</th>
+	            <th>
+	                <button type="button" ng-click="friendsVm.sendReq(user.id)" class="btn btn-danger">Send Request</button>
+	            </th>
+	        </tbody>
+    	</table>
+    </div>
 </div>

@@ -32,8 +32,12 @@ import jms_messages.MessageReqMsg_JMS;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
+import jms_messages.UserFriendsReqMsg;
+import jms_messages.UserFriendsResMsg;
 import jms_messages.WebSocketMessage;
 import jms_messages.WebSocketMessageType;
+import jms_messages.UserFriendsReqMsgType;
+import jms_messages.UserFriendsResMsgType;
 import model.User;
 
 @ServerEndpoint("/Socket")
@@ -108,6 +112,8 @@ public class UserWebSocket implements MessageListener {
 				handleLogOut(session);
 			} else if (webSocketMessage.getType() == WebSocketMessageType.GROUPS) {
 				handleMyGroups(session);
+			} else if (webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
+				handleUserFriendsReq(session, webSocketMessage.getContent());
 			}
 
 		} catch (Exception e) {
@@ -245,6 +251,12 @@ public class UserWebSocket implements MessageListener {
 				ObjectMapper mapper = new ObjectMapper();
 				UserAuthResMsg userAuthResMsg = mapper.readValue(json, UserAuthResMsg.class);
 				User user = userAuthResMsg.getUser();
+
+				// TODO SIMO OVDE NISI PAZIO DA LI USER MOZE BITI NULL KONTAM OD PRILIKE IZ ZBOG
+				// CEPA ALI JA SAM SAMO VRATIO NULL PA TI VIDI JEL TO OK
+				if (user == null)
+					return;
+
 				String id = userAuthResMsg.getSessionId();
 				userSession.put(user.getUsername(), id);
 				sessionUser.put(id, user.getUsername());
@@ -300,7 +312,10 @@ public class UserWebSocket implements MessageListener {
 				sessionUser.remove(session.getId());
 			}
 			if (message.getType() == JMSMessageToWebSocketType.GROUPS) {
-				
+				System.out.println("Sredi");
+			}
+			if (message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
+				handleUserFriendsRes((String) message.getContent());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -328,6 +343,50 @@ public class UserWebSocket implements MessageListener {
 
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void handleUserFriendsReq(Session session, String content) {
+		String username = sessionUser.get(session.getId());
+		if (username == null)
+			return;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			UserFriendsReqMsg msg = mapper.readValue(content, UserFriendsReqMsg.class);
+			msg.setSessionId(session.getId());
+			userAppCommunication.sendUserFriendsReqMsg(msg);
+			// TODO obraditi odgovor
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void handleUserFriendsRes(String json) {
+		ObjectMapper mapper = new ObjectMapper();
+		UserFriendsResMsg msg = null;
+		try {
+			msg = mapper.readValue(json, UserFriendsResMsg.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(json);
+		Session session = null;
+		for (Session s : sessions) {
+			if (s.getId().equals(msg.getSessionId())) {
+				session = s;
+			}
+		}
+		if (session == null)
+			return;
+		WebSocketMessage wsm = new WebSocketMessage();
+		wsm.setType(WebSocketMessageType.USER_FRIENDS_RES);
+		wsm.setContent(json);
+		try {
+			session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

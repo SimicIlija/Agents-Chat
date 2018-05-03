@@ -29,15 +29,19 @@ import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthResMsg;
+import jms_messages.UserFriendsReqMsg;
+import jms_messages.UserFriendsReqMsgType;
+import jms_messages.UserFriendsResMsg;
+import jms_messages.UserFriendsResMsgType;
 import model.Host;
 import model.User;
 
 @Stateless
-public class UserAppCommunication implements UserAppCommunicationLocal {
+public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@EJB
 	private PropertiesSupplierLocal prop;
-
+	
 	@Inject
 	private JMSContext context;
 
@@ -286,5 +290,35 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 		} catch (JMSException | JsonProcessingException e) {
 			e.printStackTrace();
 		} */
+	}
+
+	public void sendUserFriendsReqMsg(UserFriendsReqMsg msg) {
+		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// TODO kad Sima uradi JMS SKOLoniti komentare
+//		if(is_master) {
+//			sendMessageToUserApp_JMS(messageReqMsg);
+//		}else {
+			sendUserFriendsReqMsg_REST(msg);
+//		}
+		
+	}
+
+	@Override
+	public void sendUserFriendsReqMsg_JMS(UserFriendsReqMsg msg) {
+		// TODO Auto-generated method stub
+	
+	}
+
+	@Override
+	public void sendUserFriendsReqMsg_REST(UserFriendsReqMsg msg) {
+		// TODO izmeniti da nije hardCoded adresa
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-friends");
+		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+		UserFriendsResMsg resMsg = response.readEntity(UserFriendsResMsg.class);
+		
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.USER_FRIENDS_RES);
 	}
 }
