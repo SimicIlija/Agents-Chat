@@ -32,6 +32,8 @@ angular.module('core.wsService')
 				   }else if(this.payload.type == 'LOGOUT'){
 					   $rootScope.user = null;
 					   $state.go('home.chat');
+				   }else if(this.payload.type == 'GROUPS'){
+					   //TODO
 				   }
 				   
 				   alert(message.data);
@@ -93,6 +95,16 @@ angular.module('core.wsService')
 			this.logout = () => {
 				this.message ={
 						"type" : "LOGOUT"
+					   };
+					   
+						if(this.socket != null){
+							this.socket.send(JSON.stringify(this.message));
+						}
+			}
+			
+			this.getGroups = () => {
+				this.message ={
+						"type" : "GROUPS"
 					   };
 					   
 						if(this.socket != null){

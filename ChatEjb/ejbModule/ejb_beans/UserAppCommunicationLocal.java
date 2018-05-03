@@ -32,4 +32,10 @@ public interface UserAppCommunicationLocal {
 
 	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg);
 
+	public void getMyGroups(String username);
+	
+	public void getMyGroups_JMS(String username);
+	
+	public void getMyGroups_REST(String username);
+
 }
