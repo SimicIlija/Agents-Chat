@@ -24,6 +24,9 @@ public class User extends BaseDO implements Serializable {
 	@Reference
 	private List<User> friends;
 	
+	@Reference
+	private List<User> friendReq;
+	
 	@NotSaved
 	@Transient
 	private Host host;
@@ -94,6 +97,14 @@ public class User extends BaseDO implements Serializable {
 
 	public void setFriends(List<User> friends) {
 		this.friends = friends;
+	}
+	
+	public List<User> getFriendReq() {
+		return friendReq;
+	}
+
+	public void setFriendReq(List<User> friendReq) {
+		this.friendReq = friendReq;
 	}
 	
 }

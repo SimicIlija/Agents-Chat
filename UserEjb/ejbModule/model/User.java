@@ -24,6 +24,9 @@ public class User extends BaseDO {
 	@Reference
 	private List<User> friends;
 	
+	@Reference
+	private List<User> friendReq;
+	
 	@NotSaved
 	@Transient
 	private Host host;
@@ -35,14 +38,18 @@ public class User extends BaseDO {
 		this.username = username;
 		this.password = password;
 		this.friends = new ArrayList<>();
+		this.friendReq = new ArrayList<>();
 	}
 	
 	public User(String username, String password, String firstName, String lastName, Host host) {
 		super();
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.host = host;
 		this.friends = new ArrayList<>();
+		this.friendReq = new ArrayList<>();
 	}
 
 	public String getUsername() {
@@ -92,6 +99,14 @@ public class User extends BaseDO {
 
 	public void setFriends(List<User> friends) {
 		this.friends = friends;
+	}
+
+	public List<User> getFriendReq() {
+		return friendReq;
+	}
+
+	public void setFriendReq(List<User> friendReq) {
+		this.friendReq = friendReq;
 	}
 	
 }

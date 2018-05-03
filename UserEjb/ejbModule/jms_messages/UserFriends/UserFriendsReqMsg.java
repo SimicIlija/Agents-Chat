@@ -8,6 +8,8 @@ public class UserFriendsReqMsg {
 	
 	private String search;
 	
+	private ObjectId user;
+	
 	private ObjectId addRemove;
 
 	private Host host;
@@ -16,8 +18,7 @@ public class UserFriendsReqMsg {
 
 	public UserFriendsReqMsg() {}
 
-	public UserFriendsReqMsg(String search, Host host, UserFriendsReqMsgType type) {
-		this.search = search;
+	public UserFriendsReqMsg(Host host, UserFriendsReqMsgType type) {
 		this.host = host;
 		this.type = type;
 	}
@@ -54,4 +55,12 @@ public class UserFriendsReqMsg {
 		this.type = type;
 	}
 
+	public ObjectId getUser() {
+		return user;
+	}
+
+	public void setUser(ObjectId user) {
+		this.user = user;
+	}
+	
 }
