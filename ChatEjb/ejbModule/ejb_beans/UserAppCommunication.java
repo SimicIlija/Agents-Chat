@@ -1,7 +1,5 @@
 package ejb_beans;
 
-import java.io.Serializable;
-
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -22,10 +20,11 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cluster.UserClusterManagerLocal;
 import config.PropertiesSupplierLocal;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
+import jms_messages.JMSUserApp;
+import jms_messages.JMSUserAppType;
 import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
@@ -41,9 +40,6 @@ import model.User;
 public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@EJB
-	private UserClusterManagerLocal userClusterManager;
-	
-	@EJB
 	private PropertiesSupplierLocal prop;
 	
 	@Inject
@@ -51,12 +47,15 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@Resource(mappedName = "java:/jms/queue/wsQueue")
 	private Destination destination;
-	
+
+	@Resource(mappedName = "java:/jms/queue/appQueue")
+	private Destination appDestination;
+
 	@Override
 	public void sendAuthAttempt(UserAuthReqMsg userAuthMsg) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		
-		// Podesavanje hosta 
+
+		// Podesavanje hosta
 		Host host = new Host();
 		String address = prop.getProperty("LOCATION");
 		host.setAddress(address);
@@ -65,24 +64,29 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		String name = prop.getProperty("NAME_OF_NODE");
 		host.setName(name);
 		userAuthMsg.getUser().setHost(host);
-		
-		UserAuthResMsg ret =null;
-		// TODO kad Sima uradi JMS SKOLoniti komentare
-//		if(is_master) {
-//			ret = sendAuthAttempt_JMS(userAuthMsg);
-//		}else {
+		if (is_master) {
+			sendAuthAttempt_JMS(userAuthMsg);
+		} else {
 			sendAuthAttempt_REST(userAuthMsg);
-//		}
-		
-		// Ako mi je logovanje bilo uspesno sad ja posaljem
-		// TODO kada odradim da mi UserApp obavestava ChatApp pa onda on obavestava sve ostale o novom logovanju onda preispitaj da li ovo treba
-		
-
+		}
 	}
 
 	@Override
 	public void sendAuthAttempt_JMS(UserAuthReqMsg userAuthMsg) {
-		// TODO Simo uradti preko JMS
+		JMSUserApp message = new JMSUserApp();
+		ObjectMapper mapper = new ObjectMapper();
+		message.setType(JMSUserAppType.LOGIN);
+		try {
+			String json = mapper.writeValueAsString(userAuthMsg);
+			message.setContent(json);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(appDestination, objectMessage);
+		} catch (JsonProcessingException | JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -90,19 +94,18 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		ResteasyClient client = new ResteasyClientBuilder().build();
 		// TODO izmeniti da nije hardCoded adresa
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
-		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
+		Response response = target.request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
 		UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
 		User user = resMsg.getUser();
-		if(user != null) {
-			userClusterManager.addUserToActiveList(user);
+		if (user != null) {
 			sendLoginSuccess(resMsg);
-		}else {
+		} else {
 			sendLoginFailure(resMsg);
 		}
 	}
 
 	private void sendLoginFailure(UserAuthResMsg resMsg) {
-		// TODO Auto-generated method stub
 		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 		message.setType(JMSMessageToWebSocketType.LOGIN_FAILURE);
 		ObjectMapper mapper = new ObjectMapper();
@@ -122,9 +125,6 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 		message.setType(JMSMessageToWebSocketType.LOGIN_SUCCESS);
 		ObjectMapper mapper = new ObjectMapper();
-		
-		// message.setContent(object);
-		
 		try {
 			String jsonObject = mapper.writeValueAsString(object);
 			message.setContent(jsonObject);
@@ -135,19 +135,18 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		} catch (JMSException | JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	@Override
 	public LastChatsResMsg getLastChats(String username) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		LastChatsResMsg ret =null;
+		LastChatsResMsg ret = null;
 		// TODO kad Sima uradi JMS SKOLoniti komentare
-//		if(is_master) {
-//			ret = getLastChats_JMS(username);
-//		}else {
-			ret = getLastChats_REST(username);
-//		}
+		// if(is_master) {
+		// ret = getLastChats_JMS(username);
+		// }else {
+		ret = getLastChats_REST(username);
+		// }
 		return ret;
 	}
 
@@ -160,71 +159,70 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@Override
 	public LastChatsResMsg getLastChats_REST(String username) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO Skloniti hard coded putanju 
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/lastChats/"+username);
+		// TODO Skloniti hard coded putanju
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/lastChats/" + username);
 		Response response = target.request(MediaType.APPLICATION_JSON).get();
 		LastChatsResMsg resMsg = response.readEntity(LastChatsResMsg.class);
-		
+
 		return resMsg;
 	}
 
 	@Override
 	public void logoutAttempt(String username) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		
+
 		// TODO kad Sima uradi JMS SKOLoniti komentare
-//		if(is_master) {
-//			logoutAttempt_JMS(username);
-//		}else {
+		// if(is_master) {
+		// logoutAttempt_JMS(username);
+		// }else {
 		logoutAttempt_REST(username);
-//		}
-		
-		
+		// }
+
 	}
 
 	@Override
 	public void logoutAttempt_JMS(String username) {
 		// TODO Simo uradi
-		
+
 	}
-	
+
 	@Override
 	public void logoutAttempt_REST(String username) {
-		if(username == null)
+		if (username == null)
 			return;
 		ResteasyClient client = new ResteasyClientBuilder().build();
 		// TODO izmeniti da nije hardCoded adresa
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/logout/"+username);
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/logout/" + username);
 		Response response = target.request().delete();
-		
+
 	}
 
 	@Override
 	public void sendMessage(MessageReqMsg messageReqMsg) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		
+
 		// TODO kad Sima uradi JMS SKOLoniti komentare
-//		if(is_master) {
-//			sendMessageToUserApp_JMS(messageReqMsg);
-//		}else {
-			sendMessageToUserApp_REST(messageReqMsg);
-//		}
-		
+		// if(is_master) {
+		// sendMessageToUserApp_JMS(messageReqMsg);
+		// }else {
+		sendMessageToUserApp_REST(messageReqMsg);
+		// }
+
 	}
 
 	@Override
 	public void sendMessageToUserApp_JMS(MessageReqMsg messageReqMsg) {
 		// TODO Nema sime da nam nije umro?
-		
+
 	}
 
 	@Override
 	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO Skloniti hard coded putanju 
+		// TODO Skloniti hard coded putanju
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/receiveMessage");
 		Response response = target.request().post(Entity.entity(messageReqMsg, MediaType.APPLICATION_JSON));
-				
+
 	}
 
 	@Override

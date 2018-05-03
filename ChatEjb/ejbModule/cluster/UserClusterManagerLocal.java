@@ -9,8 +9,10 @@ import model.User;
 @Local
 public interface UserClusterManagerLocal {
 
-	public void addUserToActiveList(User user);
+	public boolean addUserToActiveList(User user);
 	
+	public boolean removeUserFroActiveList(User user);
+
 	public List<User> getAllActiveUsers();
 
 }

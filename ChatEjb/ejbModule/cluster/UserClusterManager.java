@@ -25,21 +25,29 @@ public class UserClusterManager implements UserClusterManagerLocal{
 		activeUsers = new ArrayList<>();
 		
 		//TODO pitaj userApp da ti da sve aktivne usere
+		try {
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
 	@Lock(LockType.WRITE)
-	public void addUserToActiveList(User user)
+	public boolean addUserToActiveList(User user)
 	{
-		// TODO obavesti userApp da je dodat novi aktivni user
-		activeUsers.add(user);
+		// Zastita da ne unese 2 puta istog
+		for(User u : activeUsers) {
+			if(u.getUsername().equals(user.getUsername()))
+				return false;
+		}
+		return activeUsers.add(user);
 	}
 	
 	@Lock(LockType.WRITE)
-	public void removeUserFroActiveList(User user) {
+	public boolean removeUserFroActiveList(User user) {
 		
-		// TODO obavesti userApp da je sklonjen ativni korisnik
-		activeUsers.remove(user);
+		return activeUsers.remove(user);
 	}
 	
 	@Lock(LockType.READ)

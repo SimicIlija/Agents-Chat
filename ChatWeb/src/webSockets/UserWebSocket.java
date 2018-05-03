@@ -22,6 +22,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import cluster.UserClusterManagerLocal;
 import ejb_beans.ChatAppCommunicationLocal;
 import ejb_beans.UserAppCommunicationLocal;
 import jms_messages.JMSMessageToWebSocket;
@@ -56,6 +57,9 @@ public class UserWebSocket implements MessageListener {
 
 	@EJB
 	ChatAppCommunicationLocal chatAppCommunication;
+
+	@EJB
+	private UserClusterManagerLocal userClusterManager;
 
 	@OnOpen
 	public void onOpen(Session session) {
@@ -197,10 +201,9 @@ public class UserWebSocket implements MessageListener {
 			user = mapper.readValue(msg, User.class);
 			log.info(user.getUsername());
 
-			// TODO provera logovanja i dodavanje tokena
 			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
 			userAppCommunication.sendAuthAttempt(userAuthMsg);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -217,7 +220,7 @@ public class UserWebSocket implements MessageListener {
 				MessageReqMsg_JMS messageReqMsg_JMS = (MessageReqMsg_JMS) message.getContent();
 				pushMessageToClient(messageReqMsg_JMS);
 			}
-			if(message.getType() == JMSMessageToWebSocketType.LOGIN_FAILURE) {
+			if (message.getType() == JMSMessageToWebSocketType.LOGIN_FAILURE) {
 				System.out.println("Neuspesno logovanje");
 				String json = (String) message.getContent();
 				System.out.println(json);
@@ -229,14 +232,14 @@ public class UserWebSocket implements MessageListener {
 				String wsmJSON = mapper.writeValueAsString(wsm);
 				System.out.println(wsmJSON);
 				Session session = null;
-				for(Session s : sessions) {
-					if(s.getId().equals(id)) {
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
 						session = s;
 					}
 				}
 				session.getBasicRemote().sendText(wsmJSON);
 			}
-			if(message.getType() == JMSMessageToWebSocketType.LOGIN_SUCCESS) {
+			if (message.getType() == JMSMessageToWebSocketType.LOGIN_SUCCESS) {
 				System.out.println("Uspesno logovanje");
 				String json = (String) message.getContent();
 				System.out.println(json);
@@ -246,14 +249,15 @@ public class UserWebSocket implements MessageListener {
 				String id = userAuthResMsg.getSessionId();
 				userSession.put(user.getUsername(), id);
 				sessionUser.put(id, user.getUsername());
+				userClusterManager.addUserToActiveList(user);
 				WebSocketMessage wsm = new WebSocketMessage();
 				wsm.setType(WebSocketMessageType.LOGIN_SUCCESS);
 				String jsonUser = mapper.writeValueAsString(user);
 				wsm.setContent(jsonUser);
 				String wsmJSON = mapper.writeValueAsString(wsm);
 				Session session = null;
-				for(Session s : sessions) {
-					if(s.getId().equals(id)) {
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
 						session = s;
 					}
 				}
