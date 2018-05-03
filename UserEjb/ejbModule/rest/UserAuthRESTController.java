@@ -1,7 +1,11 @@
 package rest;
 
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.jms.Destination;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
 import javax.jms.ObjectMessage;
@@ -12,6 +16,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import beans.UserAuthMgmtLocal;
 import dataAccess.User.UserServiceLocal;
@@ -32,6 +39,12 @@ public class UserAuthRESTController {
 	
 	@EJB
 	UserServiceLocal userService;
+	
+	@Inject
+	private JMSContext context;
+
+	@Resource(mappedName = "java:/jms/queue/ouQueue")
+	private Destination destination;
 	
 	@POST
 	@Path("/register")
@@ -54,23 +67,23 @@ public class UserAuthRESTController {
 	public UserAuthResMsg logIn(UserAuthReqMsg msg) {
 		User user = null;
 		try {
-			user = userAuthMgmt.logIn(msg.getUser(), msg.getHost());
-			// Ako je logovanje uspesno obavesti preko jsm chatApp MASTER koji obavestava preko resta ostale hostove o novom ulogovanom user-u
-			// TODO Simo npr u klasi UserController u ChatWeb cu ja metodu on message koja treba  
+			user = userAuthMgmt.logIn(msg.getUser(), msg.getHost()); 
 			if(user != null) {
+				
 				JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 				message.setType(JMSMessageToWebSocketType.NEW_ACITE_USER);
-				message.setContent(user);
-				
-//				try {
-//					System.out.println("Saljem poruku");
-//					ObjectMessage objectMessage = context.createObjectMessage();
-//					objectMessage.setObject(message);
-//					JMSProducer producer = context.createProducer();
-//					producer.send(destination, objectMessage);
-//				} catch (JMSException e) {
-//					e.printStackTrace();
-//				}
+				ObjectMapper mapper = new ObjectMapper();
+				String jsonUser;
+				try {
+					jsonUser = mapper.writeValueAsString(user);
+					message.setContent(jsonUser);
+					ObjectMessage objectMessage = context.createObjectMessage();
+					objectMessage.setObject(message);
+					JMSProducer producer = context.createProducer();
+					producer.send(destination, objectMessage);
+				} catch (JsonProcessingException | JMSException e) {
+					e.printStackTrace();
+				}
 			}
 			
 			return new UserAuthResMsg(user, msg.getSessionId(), UserAuthResMsgType.LOGGED_IN);

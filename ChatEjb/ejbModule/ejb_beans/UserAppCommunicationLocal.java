@@ -2,7 +2,6 @@ package ejb_beans;
 
 import javax.ejb.Local;
 
-import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserFriendsReqMsg;

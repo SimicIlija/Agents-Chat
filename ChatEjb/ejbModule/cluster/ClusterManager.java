@@ -65,7 +65,7 @@ public class ClusterManager implements ClusterManagerLocal{
 		String targetString1 = "http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/ChatWeb/rest/cluster/getAllHosts";
 		ResteasyWebTarget target1 = client.target(targetString1);
 		Response response1 = target1.request(MediaType.APPLICATION_JSON).get();
-		Hosts hosts = response.readEntity(Hosts.class);
+		Hosts hosts = response1.readEntity(Hosts.class);
 		activeHosts = hosts.getListOfHosts();
 		
 		}catch(Exception e) {

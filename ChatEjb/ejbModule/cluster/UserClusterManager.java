@@ -6,12 +6,21 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+
+import config.PropertiesSupplierLocal;
 import model.User;
+import model.Users;
 
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Startup
@@ -20,12 +29,24 @@ public class UserClusterManager implements UserClusterManagerLocal{
 
 	private List<User> activeUsers;
 	
+	@EJB
+	private PropertiesSupplierLocal prop;
+	
 	@PostConstruct
 	private void init () {
 		activeUsers = new ArrayList<>();
 		
-		//TODO pitaj userApp da ti da sve aktivne usere
+		String isMaster = prop.getProperty("IS_MASTER");
+		if( isMaster.equals("true"))
+			return ;
+		
 		try {
+			ResteasyClient client = new ResteasyClientBuilder().build();
+			String targetString1 = "http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/ChatWeb/rest/User/getAllActiveUsers";
+			ResteasyWebTarget target1 = client.target(targetString1);
+			Response response1 = target1.request(MediaType.APPLICATION_JSON).get();
+			Users users = response1.readEntity(Users.class);
+			activeUsers = users.getListOfUsers();
 			
 		}catch(Exception e) {
 			e.printStackTrace();

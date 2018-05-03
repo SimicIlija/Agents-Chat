@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
-import javax.ejb.Singleton;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.websocket.OnClose;
@@ -109,6 +108,8 @@ public class UserWebSocket implements MessageListener {
 				handleSendMessage(session, webSocketMessage.getContent());
 			} else if (webSocketMessage.getType() == WebSocketMessageType.LAST_CHATS) {
 				handleGetLastChats(session, webSocketMessage.getContent());
+			} else if (webSocketMessage.getType() == WebSocketMessageType.LOGOUT) {
+				handleLogOut(session);
 			} else if(webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
 				handleUserFriendsReq(session, webSocketMessage.getContent());
 			}
@@ -117,6 +118,13 @@ public class UserWebSocket implements MessageListener {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void handleLogOut(Session session) {
+		// TODO Auto-generated method stub
+		String username = sessionUser.get(session.getId());
+		System.out.println(username);
+		userAppCommunication.logoutAttempt(username);
 	}
 
 	@OnClose
@@ -128,7 +136,7 @@ public class UserWebSocket implements MessageListener {
 		userAppCommunication.logoutAttempt(username);
 
 		userSession.remove(username);
-		sessionUser.remove(session);
+		sessionUser.remove(session.getId());
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
 
 	}
@@ -178,18 +186,7 @@ public class UserWebSocket implements MessageListener {
 		if (username == null)
 			return;
 		try {
-
-			ObjectMapper mapper = new ObjectMapper();
-			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
-
-			WebSocketMessage wsm = new WebSocketMessage();
-			wsm.setType(WebSocketMessageType.LAST_CHATS);
-			String content = mapper.writeValueAsString(ret);
-			wsm.setContent(content);
-			String wsmJSON = mapper.writeValueAsString(wsm);
-
-			session.getBasicRemote().sendText(wsmJSON);
-
+			userAppCommunication.getLastChats(username);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -264,7 +261,43 @@ public class UserWebSocket implements MessageListener {
 					}
 				}
 				session.getBasicRemote().sendText(wsmJSON);
-				
+			}
+			if(message.getType() == JMSMessageToWebSocketType.LAST_CHATS) {
+				String json = (String) message.getContent();
+				System.out.println(json);
+				ObjectMapper mapper = new ObjectMapper();
+				LastChatsResMsg response = mapper.readValue(json, LastChatsResMsg.class);
+				String username = response.getUsername();
+				String id = userSession.get(username);
+				WebSocketMessage wsm = new WebSocketMessage();
+				wsm.setType(WebSocketMessageType.LAST_CHATS);
+				String content = mapper.writeValueAsString(response);
+				wsm.setContent(content);
+				String wsmJSON = mapper.writeValueAsString(wsm);
+				Session session = null;
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
+						session = s;
+					}
+				}
+				session.getBasicRemote().sendText(wsmJSON);
+			}
+			if (message.getType() == JMSMessageToWebSocketType.LOGOUT) {
+				String username =(String) message.getContent();
+				String id = userSession.get(username);
+				userSession.remove(username);
+				Session session = null;
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
+						session = s;
+					}
+				}
+				ObjectMapper mapper = new ObjectMapper();
+				WebSocketMessage wsm = new WebSocketMessage();
+				wsm.setType(WebSocketMessageType.LOGOUT);
+				String wsmJSON = mapper.writeValueAsString(wsm);
+				session.getBasicRemote().sendText(wsmJSON);
+				sessionUser.remove(session.getId());
 			}
 			if(message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
 				handleUserFriendsRes((String)message.getContent());

@@ -6,6 +6,7 @@ public class Hosts {
 
 	private List<Host> listOfHosts;
 
+	public Hosts() {}
 	public Hosts(List<Host> listOfHosts) {
 		super();
 		this.listOfHosts = listOfHosts;

@@ -1,5 +1,7 @@
 package restControllers;
 
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
@@ -34,6 +36,11 @@ public class ClasterController {
 		if(!isMaster.equals("true"))
 			return "no no";
 		
+		List<Host> hosts = clusterManager.getAllHost();
+		for(Host h : hosts) {
+			if(h.getName().equals(host.getName()))
+				return "failed";
+		}
 		clusterManager.addHostToActiveList(host);
 		
 		return "ok";

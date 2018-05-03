@@ -84,7 +84,6 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 			JMSProducer producer = context.createProducer();
 			producer.send(appDestination, objectMessage);
 		} catch (JsonProcessingException | JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -92,8 +91,7 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@Override
 	public void sendAuthAttempt_REST(UserAuthReqMsg userAuthMsg) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO izmeniti da nije hardCoded adresa
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
+		ResteasyWebTarget target = client.target("http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/user-auth/login");
 		Response response = target.request(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
 		UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
@@ -138,33 +136,51 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats(String username) {
+	public void getLastChats(String username) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		LastChatsResMsg ret = null;
-		// TODO kad Sima uradi JMS SKOLoniti komentare
-		// if(is_master) {
-		// ret = getLastChats_JMS(username);
-		// }else {
-		ret = getLastChats_REST(username);
-		// }
-		return ret;
+		if (is_master) {
+			getLastChats_JMS(username);
+		} else {
+			getLastChats_REST(username);
+		}
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats_JMS(String username) {
-		// TODO Simo uradi
-		return null;
+	public void getLastChats_JMS(String username) {
+		JMSUserApp message = new JMSUserApp();
+		message.setType(JMSUserAppType.LAST_CHAT);
+		try {
+			message.setContent(username);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(appDestination, objectMessage);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats_REST(String username) {
+	public void getLastChats_REST(String username) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO Skloniti hard coded putanju
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/lastChats/" + username);
+		ResteasyWebTarget target = client.target("http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/chat/lastChats/" + username);
 		Response response = target.request(MediaType.APPLICATION_JSON).get();
 		LastChatsResMsg resMsg = response.readEntity(LastChatsResMsg.class);
+		resMsg.setUsername(username);
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LAST_CHATS);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
-		return resMsg;
 	}
 
 	@Override
@@ -191,10 +207,19 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		if (username == null)
 			return;
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO izmeniti da nije hardCoded adresa
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/logout/" + username);
+		ResteasyWebTarget target = client.target("http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/user-auth/logout/" + username);
 		Response response = target.request().delete();
-
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LOGOUT);
+		message.setContent(username);
+		try {
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -219,8 +244,7 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@Override
 	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO Skloniti hard coded putanju
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/receiveMessage");
+		ResteasyWebTarget target = client.target("http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/chat/receiveMessage");
 		Response response = target.request().post(Entity.entity(messageReqMsg, MediaType.APPLICATION_JSON));
 
 	}

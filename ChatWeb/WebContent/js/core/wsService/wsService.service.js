@@ -29,12 +29,15 @@ angular.module('core.wsService')
 				   }
 				   else if(this.payload.type == 'MESSAGE'){
 					   $rootScope.$broadcast('MESSAGE',this.contentObjest );
+				   }else if(this.payload.type == 'LOGOUT'){
+					   $rootScope.user = null;
+					   $state.go('home.chat');
 				   }
 				   else if(this.payload.type == 'USER_FRIENDS_RES') {
 					   $rootScope.$broadcast(this.payload.type, this.contentObjest);
 				   }
 				   
-				   //alert(message.data);
+				   alert(message.data);
 			   }
 			   
 			   socket.onclose = function() {
@@ -89,6 +92,16 @@ angular.module('core.wsService')
 					this.socket.send(JSON.stringify(this.message));
 				}
 			};
+			
+			this.logout = () => {
+				this.message ={
+						"type" : "LOGOUT"
+					   };
+					   
+						if(this.socket != null){
+							this.socket.send(JSON.stringify(this.message));
+						}
+			}
 			
 		this.sendFriendReqMsg = (content) => {
 			this.message ={
