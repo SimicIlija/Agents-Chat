@@ -5,6 +5,8 @@ import javax.ejb.Local;
 import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
+import jms_messages.UserFriendsReqMsg;
+import jms_messages.UserFriendsResMsg;
 
 @Local
 public interface UserAppCommunicationLocal {
@@ -33,6 +35,8 @@ public interface UserAppCommunicationLocal {
 
 	public void sendMessageToUserApp_REST(MessageReqMsg messageReqMsg);
 	
-	
+	public void sendUserFriendsReqMsg(UserFriendsReqMsg msg);
+	public void sendUserFriendsReqMsg_JMS(UserFriendsReqMsg msg);
+	public void sendUserFriendsReqMsg_REST(UserFriendsReqMsg msg);
 
 }

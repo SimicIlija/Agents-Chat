@@ -1,4 +1,4 @@
-package jms_messages.UserFriends;
+package jms_messages;
 
 public enum UserFriendsResMsgType {
 	

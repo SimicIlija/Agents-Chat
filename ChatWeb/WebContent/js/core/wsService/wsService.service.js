@@ -86,4 +86,12 @@ angular.module('core.wsService')
 					this.socket.send(JSON.stringify(this.message));
 				}
 			};
+			
+		this.sendFriendReqMsg = (content) => {
+			this.message ={
+					"type" : "USER_FRIENDS_REQ",
+					"content" : JSON.stringify(content)
+			};
+			this.socket.send(JSON.stringify(this.message));
+		};
 	});

@@ -4,35 +4,38 @@
     angular
       .module('friends')
       .controller('friendsController', friendsController);
-  
-    function friendsController() {
+    
+    friendsController.$inject = ['wsService', '$rootScope','$state'];
+    function friendsController(wsService, $rootScope, $state) {
       var friendsVm = this;
       friendsVm.message = 'Test';
       friendsVm.searchText = '';
-      friendsVm.myFriends = []; 
+      friendsVm.myFriends = [];
+      friendsVm.friendReq = [];
       friendsVm.searchResults = [];
       friendsVm.init = init;
       friendsVm.search = search;
       friendsVm.removeFriend = removeFriend;
-      
+      friendsVm.sendReq = '';
+      friendsVm.acceptReq = '';
+      friendsVm.declineReq = '';
 
       init();
 
       function init(){
-        console.log("TODO: get with WS");
-        var user1 = new Object();
-        user1.username = "Sima";
-        friendsVm.myFriends.push(user1);
-        var user2 = new Object();
-        user2.username = "Horva";
-        friendsVm.myFriends.push(user2);
-        var user3 = new Object();
-        user3.username = "Puzic";
-        friendsVm.myFriends.push(user3);
+    	  if($rootScope.user == null) {
+    	  	$state.go('home');
+    	  	return;
+    	  }
+    	  friendsVm.myFriends = $rootScope.user.friends;
       }
 
       function search(){
-        alert("Search for: " + friendsVm.searchText);
+    	var msg = {};
+    	msg.search = friendsVm.searchText;
+    	msg.type = 'SEARCH';
+    	wsService.sendFriendReqMsg(msg);
+        //alert("Search for: " + friendsVm.searchText);
       }
 
       function removeFriend(username){

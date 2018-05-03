@@ -32,6 +32,8 @@ import jms_messages.MessageReqMsg_JMS;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
+import jms_messages.UserFriendsReqMsg;
+import jms_messages.UserFriendsResMsg;
 import jms_messages.WebSocketMessage;
 import jms_messages.WebSocketMessageType;
 import model.User;
@@ -101,6 +103,8 @@ public class UserWebSocket implements MessageListener {
 				handleSendMessage(session, webSocketMessage.getContent());
 			} else if (webSocketMessage.getType() == WebSocketMessageType.LAST_CHATS) {
 				handleGetLastChats(session, webSocketMessage.getContent());
+			} else if(webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
+				handleUserFriendsReq(session, webSocketMessage.getContent());
 			}
 
 		} catch (Exception e) {
@@ -281,6 +285,20 @@ public class UserWebSocket implements MessageListener {
 				}
 
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void handleUserFriendsReq(Session session, String content) {
+		String username = sessionUser.get(session.getId());
+		if (username == null)
+			return;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			UserFriendsReqMsg msg = mapper.readValue(content, UserFriendsReqMsg.class);
+			userAppCommunication.sendUserFriendsReqMsg(msg);
+			//TODO obraditi odgovor
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
