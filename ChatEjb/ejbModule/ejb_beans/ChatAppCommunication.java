@@ -84,7 +84,7 @@ public class ChatAppCommunication implements ChatAppCommunicationLocal {
 
 					// Ovo je alternativni dto koji nema ObjectId 
 					MessageReqMsg_JMS reqJMS = new MessageReqMsg_JMS(messageReqMsg);
-					if (user.getHost().getName().equals(currentHostName)) {
+					if ( user.getHost().getName().equals(currentHostName)) {
 						JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 						message.setType(JMSMessageToWebSocketType.PUSH_MESSAGE);
 						message.setContent(reqJMS);
