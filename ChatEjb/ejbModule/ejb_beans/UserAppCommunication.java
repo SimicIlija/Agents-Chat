@@ -206,10 +206,19 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 		if (username == null)
 			return;
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		// TODO izmeniti da nije hardCoded adresa
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/logout/" + username);
 		Response response = target.request().delete();
-
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LOGOUT);
+		message.setContent(username);
+		try {
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
