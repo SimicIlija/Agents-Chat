@@ -1,6 +1,7 @@
 package mdb;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
@@ -19,15 +20,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import beans.UserAuthMgmtLocal;
+import dataAccess.ChatMessage.ChatMessageServiceLocal;
 import exceptions.UserAuthException;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.JMSUserApp;
 import jms_messages.JMSUserAppType;
+import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuth.UserAuthReqMsg;
 import jms_messages.UserAuth.UserAuthResMsg;
 import jms_messages.UserAuth.UserAuthResMsgType;
-import jms_messages.UserFriends.UserFriendsResMsgType;
+import model.Chat;
 import model.User;
 
 @MessageDriven(activationConfig = {
@@ -37,6 +40,9 @@ public class UserMDB implements MessageListener {
 
 	@EJB
 	UserAuthMgmtLocal userAuthMgmt;
+
+	@EJB
+	private ChatMessageServiceLocal chatMessageService;
 
 	@Inject
 	private JMSContext context;
@@ -57,12 +63,32 @@ public class UserMDB implements MessageListener {
 				try {
 					user = userAuthMgmt.logIn(request.getUser(), request.getHost());
 				} catch (UserAuthException e) {
-					sendLoginFailure(new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.INVALID_CREDENTIALS));
+					sendLoginFailure(
+							new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.INVALID_CREDENTIALS));
 				}
 				if (user == null) {
-					sendLoginFailure(new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.INVALID_CREDENTIALS));
+					sendLoginFailure(
+							new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.INVALID_CREDENTIALS));
 				}
 				sendLoginSuccess(new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.LOGGED_IN));
+			}
+			if (jmsUserApp.getType() == JMSUserAppType.LAST_CHAT) {
+				List<Chat> chats = chatMessageService.getLastChats(jmsUserApp.getContent());
+				LastChatsResMsg ret = new LastChatsResMsg();
+				ret.setChats(chats);
+				ret.setUsername(jmsUserApp.getContent());
+				JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+				message.setType(JMSMessageToWebSocketType.LAST_CHATS);
+				try {
+					String jsonObject = mapper.writeValueAsString(ret);
+					message.setContent(jsonObject);
+					ObjectMessage oMessage = context.createObjectMessage();
+					oMessage.setObject(message);
+					JMSProducer producer = context.createProducer();
+					producer.send(destination, oMessage);
+				} catch (JMSException | JsonProcessingException e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (JMSException | IOException e) {
 			// TODO Auto-generated catch block

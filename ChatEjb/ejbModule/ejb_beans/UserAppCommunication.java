@@ -60,12 +60,11 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 		String name = prop.getProperty("NAME_OF_NODE");
 		host.setName(name);
 		userAuthMsg.getUser().setHost(host);
-		/*if (is_master) {
+		if (is_master) {
 			sendAuthAttempt_JMS(userAuthMsg);
 		} else {
 			sendAuthAttempt_REST(userAuthMsg);
-		}*/
-		sendAuthAttempt_REST(userAuthMsg);
+		}
 	}
 
 	@Override
@@ -135,33 +134,52 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats(String username) {
+	public void getLastChats(String username) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
-		LastChatsResMsg ret = null;
-		// TODO kad Sima uradi JMS SKOLoniti komentare
-		// if(is_master) {
-		// ret = getLastChats_JMS(username);
-		// }else {
-		ret = getLastChats_REST(username);
-		// }
-		return ret;
+		if (is_master) {
+			getLastChats_JMS(username);
+		} else {
+			getLastChats_REST(username);
+		}
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats_JMS(String username) {
-		// TODO Simo uradi
-		return null;
+	public void getLastChats_JMS(String username) {
+		JMSUserApp message = new JMSUserApp();
+		message.setType(JMSUserAppType.LAST_CHAT);
+		try {
+			message.setContent(username);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(appDestination, objectMessage);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
-	public LastChatsResMsg getLastChats_REST(String username) {
+	public void getLastChats_REST(String username) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
 		// TODO Skloniti hard coded putanju
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/chat/lastChats/" + username);
 		Response response = target.request(MediaType.APPLICATION_JSON).get();
 		LastChatsResMsg resMsg = response.readEntity(LastChatsResMsg.class);
+		resMsg.setUsername(username);
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LAST_CHATS);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
-		return resMsg;
 	}
 
 	@Override
