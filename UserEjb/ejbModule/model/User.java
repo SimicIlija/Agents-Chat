@@ -9,6 +9,8 @@ import org.mongodb.morphia.annotations.NotSaved;
 import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.annotations.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class User extends BaseDO {
 	
@@ -21,6 +23,7 @@ public class User extends BaseDO {
 	
 	private String lastName;
 	
+	@JsonIgnore
 	@Reference
 	private List<User> friends;
 	
