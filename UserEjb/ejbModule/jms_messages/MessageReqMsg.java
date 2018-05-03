@@ -1,6 +1,16 @@
 package jms_messages;
 
-public class MessageReqMsg {
+import java.io.Serializable;
+import java.util.List;
+import org.bson.types.ObjectId;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import model.ObjectIdMapping;
+
+
+public class MessageReqMsg implements Serializable{
 
 	private String sender;
 	
@@ -8,16 +18,32 @@ public class MessageReqMsg {
 	
 	private String content;
 	
-	private Long chat;
+	@JsonSerialize(using = model.ObjectIdMapping.ObjectIdSerializer.class)
+	@JsonDeserialize(using = model.ObjectIdMapping.ObjectIdDeserializer.class)
+	private ObjectId chat;
+	
+	private List<String> usernames;
 
 	public MessageReqMsg() {}
 	
-	public MessageReqMsg(String sender, Long timeStamp, String content, Long chat) {
+	
+
+	public MessageReqMsg(String sender, Long timeStamp, String content, List<String> usernames) {
 		super();
 		this.sender = sender;
 		this.timeStamp = timeStamp;
 		this.content = content;
-		this.chat = chat;
+		this.usernames = usernames;
+	}
+
+
+
+	public List<String> getUsernames() {
+		return usernames;
+	}
+
+	public void setUsernames(List<String> usernames) {
+		this.usernames = usernames;
 	}
 
 	public String getSender() {
@@ -44,13 +70,15 @@ public class MessageReqMsg {
 		this.content = content;
 	}
 
-	public Long getChat() {
+	public ObjectId getChat() {
 		return chat;
 	}
 
-	public void setChat(Long chat) {
+	public void setChat(ObjectId chat) {
 		this.chat = chat;
 	}
+
+
 	
 	
 }

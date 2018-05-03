@@ -2,39 +2,38 @@ package jms_messages;
 
 import java.io.Serializable;
 import java.util.List;
+
 import org.bson.types.ObjectId;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import model.ObjectIdMapping;
-
-
-public class MessageReqMsg implements Serializable{
-
-	private String sender;
+public class MessageReqMsg_JMS implements Serializable{
+	
+private String sender;
 	
 	private Long timeStamp;
 	
 	private String content;
 	
-	@JsonSerialize(using = model.ObjectIdMapping.ObjectIdSerializer.class)
-	@JsonDeserialize(using = model.ObjectIdMapping.ObjectIdDeserializer.class)
-	private ObjectId chat;
+	private String chatId;
 	
 	private List<String> usernames;
 
-	public MessageReqMsg() {}
-	
+	public MessageReqMsg_JMS() {}
 	
 
-	public MessageReqMsg(String sender, Long timeStamp, String content, List<String> usernames) {
+	public MessageReqMsg_JMS(MessageReqMsg msg) {
 		super();
-		this.sender = sender;
-		this.timeStamp = timeStamp;
-		this.content = content;
-		this.usernames = usernames;
+		this.sender = msg.getSender();
+		this.timeStamp = msg.getTimeStamp();
+		this.content = msg.getContent();
+		this.usernames = msg.getUsernames();
+		this.chatId = msg.getChat().toString();
+		
 	}
+
+
 
 	public List<String> getUsernames() {
 		return usernames;
@@ -68,15 +67,14 @@ public class MessageReqMsg implements Serializable{
 		this.content = content;
 	}
 
-	public ObjectId getChat() {
-		return chat;
-	}
 
-	public void setChat(ObjectId chat) {
-		this.chat = chat;
+	public String getChatId() {
+		return chatId;
 	}
 
 
-	
-	
+	public void setChatId(String chatId) {
+		this.chatId = chatId;
+	}
+
 }
