@@ -60,11 +60,12 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 		String name = prop.getProperty("NAME_OF_NODE");
 		host.setName(name);
 		userAuthMsg.getUser().setHost(host);
-		if (is_master) {
+		/*if (is_master) {
 			sendAuthAttempt_JMS(userAuthMsg);
 		} else {
 			sendAuthAttempt_REST(userAuthMsg);
-		}
+		}*/
+		sendAuthAttempt_REST(userAuthMsg);
 	}
 
 	@Override
