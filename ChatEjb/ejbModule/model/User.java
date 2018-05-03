@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.mongodb.morphia.annotations.Entity;
@@ -9,7 +10,7 @@ import org.mongodb.morphia.annotations.Reference;
 import org.mongodb.morphia.annotations.Transient;
 
 @Entity
-public class User extends BaseDO {
+public class User extends BaseDO implements Serializable {
 	
 	@Indexed(unique=true)
 	private String username;
