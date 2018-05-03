@@ -61,7 +61,7 @@ public class MongoConnection {
 
 	public Datastore getDatastore() {
 		if (dataStore == null) {
-			String dbName = "ChatDB";
+			String dbName = "ChatDB-Sima";
 			dataStore = getMorphia().createDatastore(getMongo(), dbName);
 		}
 		return dataStore;

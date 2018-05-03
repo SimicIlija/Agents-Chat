@@ -1,8 +1,10 @@
 package jms_messages;
 
+import java.io.Serializable;
+
 import model.User;
 
-public class UserAuthResMsg {
+public class UserAuthResMsg implements Serializable {
 	
 	private User user;
 	

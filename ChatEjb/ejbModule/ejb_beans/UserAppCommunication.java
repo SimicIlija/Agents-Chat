@@ -1,7 +1,16 @@
 package ejb_beans;
 
+import java.io.Serializable;
+
+import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.jms.Destination;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.JMSProducer;
+import javax.jms.ObjectMessage;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -10,8 +19,13 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cluster.UserClusterManagerLocal;
 import config.PropertiesSupplierLocal;
+import jms_messages.JMSMessageToWebSocket;
+import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.LastChatsResMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
@@ -28,8 +42,14 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@EJB
 	private PropertiesSupplierLocal prop;
 	
+	@Inject
+	private JMSContext context;
+
+	@Resource(mappedName = "java:/jms/queue/wsQueue")
+	private Destination destination;
+	
 	@Override
-	public UserAuthResMsg sendAuthAttempt(UserAuthReqMsg userAuthMsg) {
+	public void sendAuthAttempt(UserAuthReqMsg userAuthMsg) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
 		
 		// Podesavanje hosta 
@@ -47,34 +67,71 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 //		if(is_master) {
 //			ret = sendAuthAttempt_JMS(userAuthMsg);
 //		}else {
-			ret = sendAuthAttempt_REST(userAuthMsg);
+			sendAuthAttempt_REST(userAuthMsg);
 //		}
 		
 		// Ako mi je logovanje bilo uspesno sad ja posaljem
 		// TODO kada odradim da mi UserApp obavestava ChatApp pa onda on obavestava sve ostale o novom logovanju onda preispitaj da li ovo treba
-		User user = ret.getUser();
-		if(user != null)
-			userClusterManager.addUserToActiveList(user);
 		
-		
-		return ret;
+
 	}
 
 	@Override
-	public UserAuthResMsg sendAuthAttempt_JMS(UserAuthReqMsg userAuthMsg) {
+	public void sendAuthAttempt_JMS(UserAuthReqMsg userAuthMsg) {
 		// TODO Simo uradti preko JMS
-		return null;
 	}
 
 	@Override
-	public UserAuthResMsg sendAuthAttempt_REST(UserAuthReqMsg userAuthMsg) {
+	public void sendAuthAttempt_REST(UserAuthReqMsg userAuthMsg) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
 		// TODO izmeniti da nije hardCoded adresa
 		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/login");
 		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthMsg, MediaType.APPLICATION_JSON));
 		UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
+		User user = resMsg.getUser();
+		if(user != null) {
+			userClusterManager.addUserToActiveList(user);
+			sendLoginSuccess(resMsg);
+		}else {
+			sendLoginFailure(resMsg);
+		}
+	}
+
+	private void sendLoginFailure(UserAuthResMsg resMsg) {
+		// TODO Auto-generated method stub
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LOGIN_FAILURE);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendLoginSuccess(Object object) {
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LOGIN_SUCCESS);
+		ObjectMapper mapper = new ObjectMapper();
 		
-		return resMsg;
+		// message.setContent(object);
+		
+		try {
+			String jsonObject = mapper.writeValueAsString(object);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override
