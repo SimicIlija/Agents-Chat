@@ -29,6 +29,9 @@ angular.module('core.wsService')
 				   }
 				   else if(this.payload.type == 'MESSAGE'){
 					   $rootScope.$broadcast('MESSAGE',this.contentObjest );
+				   }else if(this.payload.type == 'LOGOUT'){
+					   $rootScope.user = null;
+					   $state.go('home.chat');
 				   }
 				   
 				   alert(message.data);
@@ -86,4 +89,14 @@ angular.module('core.wsService')
 					this.socket.send(JSON.stringify(this.message));
 				}
 			};
+			
+			this.logout = () => {
+				this.message ={
+						"type" : "LOGOUT"
+					   };
+					   
+						if(this.socket != null){
+							this.socket.send(JSON.stringify(this.message));
+						}
+			}
 	});

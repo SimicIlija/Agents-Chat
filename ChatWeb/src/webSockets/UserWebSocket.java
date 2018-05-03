@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
 import javax.ejb.MessageDriven;
-import javax.ejb.Singleton;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.websocket.OnClose;
@@ -105,12 +104,21 @@ public class UserWebSocket implements MessageListener {
 				handleSendMessage(session, webSocketMessage.getContent());
 			} else if (webSocketMessage.getType() == WebSocketMessageType.LAST_CHATS) {
 				handleGetLastChats(session, webSocketMessage.getContent());
+			} else if (webSocketMessage.getType() == WebSocketMessageType.LOGOUT) {
+				handleLogOut(session);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private void handleLogOut(Session session) {
+		// TODO Auto-generated method stub
+		String username = sessionUser.get(session.getId());
+		System.out.println(username);
+		userAppCommunication.logoutAttempt(username);
 	}
 
 	@OnClose
@@ -122,7 +130,7 @@ public class UserWebSocket implements MessageListener {
 		userAppCommunication.logoutAttempt(username);
 
 		userSession.remove(username);
-		sessionUser.remove(session);
+		sessionUser.remove(session.getId());
 		log.info("Zatvorio: " + session.getId() + " u endpoint-u: " + this.hashCode());
 
 	}
@@ -172,18 +180,7 @@ public class UserWebSocket implements MessageListener {
 		if (username == null)
 			return;
 		try {
-
-			ObjectMapper mapper = new ObjectMapper();
 			userAppCommunication.getLastChats(username);
-
-			/*WebSocketMessage wsm = new WebSocketMessage();
-			wsm.setType(WebSocketMessageType.LAST_CHATS);
-			String content = mapper.writeValueAsString(ret);
-			wsm.setContent(content);
-			String wsmJSON = mapper.writeValueAsString(wsm);
-
-			session.getBasicRemote().sendText(wsmJSON); */
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -278,6 +275,23 @@ public class UserWebSocket implements MessageListener {
 					}
 				}
 				session.getBasicRemote().sendText(wsmJSON);
+			}
+			if (message.getType() == JMSMessageToWebSocketType.LOGOUT) {
+				String username =(String) message.getContent();
+				String id = userSession.get(username);
+				userSession.remove(username);
+				Session session = null;
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
+						session = s;
+					}
+				}
+				ObjectMapper mapper = new ObjectMapper();
+				WebSocketMessage wsm = new WebSocketMessage();
+				wsm.setType(WebSocketMessageType.LOGOUT);
+				String wsmJSON = mapper.writeValueAsString(wsm);
+				session.getBasicRemote().sendText(wsmJSON);
+				sessionUser.remove(session.getId());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

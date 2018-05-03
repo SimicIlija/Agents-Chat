@@ -205,7 +205,17 @@ public class UserAppCommunication implements UserAppCommunicationLocal {
 		ResteasyClient client = new ResteasyClientBuilder().build();
 		ResteasyWebTarget target = client.target("http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/UserWeb/rest/user-auth/logout/" + username);
 		Response response = target.request().delete();
-
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.LOGOUT);
+		message.setContent(username);
+		try {
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
