@@ -1,1 +1,35 @@
-AAAAAAAAAAA
+<div class="container">
+    <h2>Friends list : </h2>
+    <table class="table table-bordered table-hover table-sm table-dark">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="user in friendsVm.myFriends">
+            <th>
+                {{user.username}}
+            </th>
+            <th>{{user.firstName}}</th>
+            <th>{{user.lastName}}</th>
+            <th>
+                <button type="button" ng-click="friendsVm.removeFriend(user.username)" class="btn btn-danger">Remove from friends</button>
+            </th>
+        </tbody>
+    </table>
+</div>
+<div class="container">
+    <h2>Add new friend: </h2>
+    <form class="navbar-form navbar-left">
+        <span class="form-group">
+            <input type="text" ng-class="form-control" placeholder="Search" ng-model="friendsVm.searchText">
+            <button type="button" class="btn btn-default" ng-click="friendsVm.search()">
+                <i class="fa fa-search"></i>Search
+            </button>
+        </span>
+        <br>
+    </form>
+</div>

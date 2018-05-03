@@ -6,5 +6,6 @@ angular.module('home', [
 	'userAuth',
 	'core.wsService',
 	'chat',
-	'friends'
+	'friends',
+	'groups'
 ]);

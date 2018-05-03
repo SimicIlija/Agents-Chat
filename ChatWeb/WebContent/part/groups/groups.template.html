@@ -1,0 +1,57 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-3 col-xl-2 collapse nav-toggled d-md-block ">
+            <h3 class="side-title">Your groups</h3>
+            <table class="table table-bordered table-hover table-sm table-dark">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Leave</th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="g in groupsVm.myGroups">
+                    <th>
+                        <a ng-click="groupsVm.showDetails(g)">{{g.name}}</a>
+                    </th>
+                    <th>
+                        <a style=" float: right !important" ng-click="groupsVm.leave(g.name)">
+                            <span>
+                                <i class="fa fa-sign-out-alt"></i>
+                            </span>
+                        </a>
+                    </th>
+                </tbody>
+            </table>
+            <div ng-if="groupsVm.showClicked">
+                <h4>{{groupsVm.showGroup.name}}</h4>
+                <table class="table table-bordered table-hover table-sm table-dark">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="u in groupsVm.showGroup.users">
+                        <th>
+                            {{u}}
+                            <a style=" float: right !important" ng-click="groupsVm.remove(groupsVm.showGroup, u)">
+                                <span>
+                                    &times;
+                                </span>
+                            </a>
+                        </th>
+                    </tbody>
+                </table>
+                <form class="navbar-form navbar-left">
+
+                    <input type="text" ng-class="form-control" class="form-control input-sm col-xs-2" placeholder="Search" ng-model="groupsVm.searchText">
+                    <span class="form-group">
+                        <button type="button" class="btn btn-default" ng-click="groupsVm.search()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
