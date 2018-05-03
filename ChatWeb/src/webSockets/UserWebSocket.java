@@ -174,15 +174,15 @@ public class UserWebSocket implements MessageListener {
 		try {
 
 			ObjectMapper mapper = new ObjectMapper();
-			LastChatsResMsg ret = userAppCommunication.getLastChats(username);
+			userAppCommunication.getLastChats(username);
 
-			WebSocketMessage wsm = new WebSocketMessage();
+			/*WebSocketMessage wsm = new WebSocketMessage();
 			wsm.setType(WebSocketMessageType.LAST_CHATS);
 			String content = mapper.writeValueAsString(ret);
 			wsm.setContent(content);
 			String wsmJSON = mapper.writeValueAsString(wsm);
 
-			session.getBasicRemote().sendText(wsmJSON);
+			session.getBasicRemote().sendText(wsmJSON); */
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,7 +258,26 @@ public class UserWebSocket implements MessageListener {
 					}
 				}
 				session.getBasicRemote().sendText(wsmJSON);
-				
+			}
+			if(message.getType() == JMSMessageToWebSocketType.LAST_CHATS) {
+				String json = (String) message.getContent();
+				System.out.println(json);
+				ObjectMapper mapper = new ObjectMapper();
+				LastChatsResMsg response = mapper.readValue(json, LastChatsResMsg.class);
+				String username = response.getUsername();
+				String id = userSession.get(username);
+				WebSocketMessage wsm = new WebSocketMessage();
+				wsm.setType(WebSocketMessageType.LAST_CHATS);
+				String content = mapper.writeValueAsString(response);
+				wsm.setContent(content);
+				String wsmJSON = mapper.writeValueAsString(wsm);
+				Session session = null;
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
+						session = s;
+					}
+				}
+				session.getBasicRemote().sendText(wsmJSON);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
