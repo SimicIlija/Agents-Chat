@@ -35,7 +35,7 @@ public class UserAuthRESTController {
 	public UserAuthResMsg register(UserAuthReqMsg msg) {
 		User user = null;
 		try {
-			user = userAuthMgmt.register(user);
+			user = userAuthMgmt.register(msg.getUser());
 			return new UserAuthResMsg(user, msg.getSessionId(), UserAuthResMsgType.REGISTERED);
 		} catch (UserAuthException e) {
 			return new UserAuthResMsg(user, msg.getSessionId(), e.getResponseType());

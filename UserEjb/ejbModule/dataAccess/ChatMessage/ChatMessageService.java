@@ -7,6 +7,7 @@ import javax.ejb.Stateless;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 import com.mongodb.DBObject;
 
@@ -33,6 +34,21 @@ public class ChatMessageService implements ChatMessageServiceLocal {
 	public Chat findOneChat(Object id) {
 		Datastore ds = conn.getDatastore();
 		List<Chat> chat = ds.find(Chat.class, "id", id).asList();
+		if(chat == null || chat.isEmpty() || chat.size() > 1)
+			return null;
+		return chat.get(0);
+	}
+	
+	@Override
+	public Chat findOneChat(String usename1, String username2) {
+		Datastore ds = conn.getDatastore();
+		Query<Chat> query = ds.createQuery(Chat.class);
+		query.and(
+				query.criteria("adnim").equal(null),
+				query.criteria("usernames").contains(usename1),
+				query.criteria("usernames").contains(username2)
+		);
+		List<Chat> chat = query.asList();
 		if(chat == null || chat.isEmpty() || chat.size() > 1)
 			return null;
 		return chat.get(0);
@@ -72,6 +88,18 @@ public class ChatMessageService implements ChatMessageServiceLocal {
 		DBObject tmp = conn.getMorphia().toDBObject(chat);
 		ChatDao dao = new ChatDao(ds);
 		dao.getCollection().insert(tmp);
+		return chat;
+	}
+
+	@Override
+	public Chat deleteChat(ObjectId id) {
+		Chat chat = findOneChat(id);
+		if(chat == null)
+			return null;
+		Datastore ds = conn.getDatastore();
+		DBObject tmp = conn.getMorphia().toDBObject(chat);
+		ChatDao dao = new ChatDao(ds);
+		dao.getCollection().remove(tmp);
 		return chat;
 	}
 

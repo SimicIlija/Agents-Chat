@@ -78,9 +78,9 @@ public class UserService implements UserServiceLocal {
 		Query<User> query = ds.createQuery(User.class);
 		for (String s : split) {
 			query.or(
-				query.criteria("username").contains(s),
-				query.criteria("firstName").contains(s),
-				query.criteria("lastName").contains(s)
+				query.criteria("username").containsIgnoreCase(s),
+				query.criteria("firstName").containsIgnoreCase(s),
+				query.criteria("lastName").containsIgnoreCase(s)
 			);
 		}
 		

@@ -23,6 +23,9 @@ public class User extends BaseDO {
 	@Reference
 	private List<User> friends;
 	
+	@Reference
+	private List<User> friendReq;
+	
 	@NotSaved
 	@Transient
 	private Host host;
@@ -93,6 +96,14 @@ public class User extends BaseDO {
 
 	public void setFriends(List<User> friends) {
 		this.friends = friends;
+	}
+	
+	public List<User> getFriendReq() {
+		return friendReq;
+	}
+
+	public void setFriendReq(List<User> friendReq) {
+		this.friendReq = friendReq;
 	}
 	
 }
