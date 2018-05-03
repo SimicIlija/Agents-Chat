@@ -196,22 +196,7 @@ public class UserWebSocket implements MessageListener {
 			// TODO provera logovanja i dodavanje tokena
 			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
 			userAppCommunication.sendAuthAttempt(userAuthMsg);
-			/*user = resMsg.getUser();
-			if (user == null)
-				return;
-
-			// dodaj sesiou u grupu ulogovanih
-			userSession.put(user.getUsername(), session.getId());
-			sessionUser.put(session.getId(), user.getUsername());
-
-			// posalji odgovor nazad
-			WebSocketMessage wsm = new WebSocketMessage();
-			wsm.setType(WebSocketMessageType.LOGIN_SUCCESS);
-			String content = mapper.writeValueAsString(user);
-			wsm.setContent(content);
-			String wsmJSON = mapper.writeValueAsString(wsm);
-
-			session.getBasicRemote().sendText(wsmJSON);*/
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -259,7 +244,8 @@ public class UserWebSocket implements MessageListener {
 				sessionUser.put(id, user.getUsername());
 				WebSocketMessage wsm = new WebSocketMessage();
 				wsm.setType(WebSocketMessageType.LOGIN_SUCCESS);
-				wsm.setContent(json);
+				String jsonUser = mapper.writeValueAsString(user);
+				wsm.setContent(jsonUser);
 				String wsmJSON = mapper.writeValueAsString(wsm);
 				Session session = null;
 				for(Session s : sessions) {
