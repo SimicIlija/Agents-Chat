@@ -49,6 +49,9 @@ public class UserMDB implements MessageListener {
 
 	@Resource(mappedName = "java:/jms/queue/wsQueue")
 	private Destination destination;
+	
+	@Resource(mappedName = "java:/jms/queue/ouQueue")
+	private Destination destination1;
 
 	@Override
 	public void onMessage(Message arg0) {
@@ -71,6 +74,25 @@ public class UserMDB implements MessageListener {
 							new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.INVALID_CREDENTIALS));
 				}
 				sendLoginSuccess(new UserAuthResMsg(user, request.getSessionId(), UserAuthResMsgType.LOGGED_IN));
+				
+				// ako je login success onda posaljem poruku preko jms chatApp-u masteru da se ulogovao i da javi ostalima
+				
+				JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+				message.setType(JMSMessageToWebSocketType.NEW_ACITE_USER);
+				mapper = new ObjectMapper();
+				String jsonUser;
+				try {
+					jsonUser = mapper.writeValueAsString(user);
+					message.setContent(jsonUser);
+					objectMessage = context.createObjectMessage();
+					objectMessage.setObject(message);
+					JMSProducer producer = context.createProducer();
+					producer.send(destination1, objectMessage);
+				} catch (JsonProcessingException | JMSException e) {
+					e.printStackTrace();
+				}
+				
+				
 			}
 			if (jmsUserApp.getType() == JMSUserAppType.LAST_CHAT) {
 				List<Chat> chats = chatMessageService.getLastChats(jmsUserApp.getContent());

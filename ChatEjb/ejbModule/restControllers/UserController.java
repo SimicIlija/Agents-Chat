@@ -9,6 +9,7 @@ import javax.ejb.MessageDriven;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import model.Host;
 import model.User;
+import model.Users;
 
 @LocalBean
 @Path("/User")
@@ -66,6 +68,15 @@ public class UserController implements MessageListener {
 		return "failed";
 	}
 	
+	@GET
+	@Path("/getAllActiveUsers")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Users getAllUsers( ) {
+		List<User> activeUsers = userClusterManager.getAllActiveUsers();
+		Users users = new Users();
+		return users;
+	}
+	
 	@Override
 	public void onMessage(javax.jms.Message arg0) {
 		System.out.println("Stigla poruka za horvata");
@@ -77,11 +88,16 @@ public class UserController implements MessageListener {
 				String jsonUser = (String) message.getContent();
 				ObjectMapper objectMapper = new ObjectMapper();
 				User user = objectMapper.readValue(jsonUser, User.class);
+				
+				// Update MASTER chatApp list of active users
+				userClusterManager.addUserToActiveList( user ) ;
+				
+				// Upadate other chatApp lists
 				sendToAllHostThatNewUserIsActive( user );
 			}
 			else if (message.getType() == JMSMessageToWebSocketType.USER_NO_LOGER_ACTIVE) {
 				User user = (User) message.getContent();
-				
+				// TODO Nebojsa uradi isto kao i za logout
 				sendToAllHostThatUserIsNoLongerActive( user );
 			}
 			
