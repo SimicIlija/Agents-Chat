@@ -62,6 +62,16 @@ angular.module('core.wsService')
 			}
 		};
 		
+		this.register = (user) => {
+			this.message ={
+					"type" : "REGISTER",
+					"content" : JSON.stringify(user)
+				   };
+				   
+					if(this.socket != null){
+						this.socket.send(JSON.stringify(this.message));
+					}
+		};
 		
 		 this.getLatestChat = () => {
 
