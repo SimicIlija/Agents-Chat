@@ -19,5 +19,5 @@ public interface ChatMessageServiceLocal {
 	public Message saveMessage(ObjectId chatId, Message message);
 	public Chat creteChat(Chat chat);
 	public Chat deleteChat(ObjectId id);
-
+	public void editChat(Chat input);
 }

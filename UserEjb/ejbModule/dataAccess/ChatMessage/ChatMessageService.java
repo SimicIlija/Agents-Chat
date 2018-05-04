@@ -12,6 +12,7 @@ import org.mongodb.morphia.query.Query;
 import com.mongodb.DBObject;
 
 import dataAccess.MongoConnection;
+import dataAccess.User.UserDao;
 import model.Chat;
 import model.Message;
 
@@ -101,6 +102,14 @@ public class ChatMessageService implements ChatMessageServiceLocal {
 		ChatDao dao = new ChatDao(ds);
 		dao.getCollection().remove(tmp);
 		return chat;
+	}
+
+	@Override
+	public void editChat(Chat input) {
+		Datastore ds = conn.getDatastore();
+		DBObject tmp = conn.getMorphia().toDBObject(input);
+		ChatDao dao = new ChatDao(ds);
+		dao.getCollection().save(tmp);
 	}
 
 }

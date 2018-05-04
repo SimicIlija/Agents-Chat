@@ -32,6 +32,7 @@ import jms_messages.MessageReqMsg_JMS;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserAuthReqMsgType;
 import jms_messages.UserAuthResMsg;
+import jms_messages.UserAuthResMsgType;
 import jms_messages.UserFriendsReqMsg;
 import jms_messages.UserFriendsResMsg;
 import jms_messages.WebSocketMessage;
@@ -334,6 +335,23 @@ public class UserWebSocket implements MessageListener {
 			}
 			if (message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
 				handleUserFriendsRes((String) message.getContent());
+			}
+			if (message.getType() == JMSMessageToWebSocketType.REGISTER) {
+				String json = (String) message.getContent();
+				ObjectMapper mapper = new ObjectMapper();
+				UserAuthResMsg userAuthResMsg = mapper.readValue(json, UserAuthResMsg.class);
+				String id = userAuthResMsg.getSessionId();
+				Session session = null;
+				for (Session s : sessions) {
+					if (s.getId().equals(id)) {
+						session = s;
+					}
+				}
+				WebSocketMessage wsm = new WebSocketMessage();
+				wsm.setType(WebSocketMessageType.REGISTER);
+				wsm.setContent(mapper.writeValueAsString(userAuthResMsg.getType()));
+				String wsmJSON = mapper.writeValueAsString(wsm);
+				session.getBasicRemote().sendText(wsmJSON);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
