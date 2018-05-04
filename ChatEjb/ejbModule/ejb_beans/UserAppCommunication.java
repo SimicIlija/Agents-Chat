@@ -297,19 +297,28 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	public void sendUserFriendsReqMsg(UserFriendsReqMsg msg) {
 		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
 		
-		// TODO kad Sima uradi JMS SKOLoniti komentare
-//		if(is_master) {
-//			sendMessageToUserApp_JMS(messageReqMsg);
-//		}else {
+		if(is_master) {
+			sendUserFriendsReqMsg_JMS(msg);
+		}else {
 			sendUserFriendsReqMsg_REST(msg);
-//		}
+		}
 		
 	}
 
 	@Override
 	public void sendUserFriendsReqMsg_JMS(UserFriendsReqMsg msg) {
-		// TODO Auto-generated method stub
-	
+		JMSUserApp message = new JMSUserApp();
+		message.setType(JMSUserAppType.USER_FRIENDS_REQ);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			message.setContent(mapper.writeValueAsString(msg));
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(appDestination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

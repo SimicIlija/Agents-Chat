@@ -1,6 +1,7 @@
 package mdb;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -20,7 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import beans.UserAuthMgmtLocal;
+import beans.UserFriendsMgmtLocal;
 import dataAccess.ChatMessage.ChatMessageServiceLocal;
+import dataAccess.User.UserServiceLocal;
 import exceptions.UserAuthException;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
@@ -30,6 +33,10 @@ import jms_messages.LastChatsResMsg;
 import jms_messages.UserAuth.UserAuthReqMsg;
 import jms_messages.UserAuth.UserAuthResMsg;
 import jms_messages.UserAuth.UserAuthResMsgType;
+import jms_messages.UserFriends.UserFriendsReqMsg;
+import jms_messages.UserFriends.UserFriendsReqMsgType;
+import jms_messages.UserFriends.UserFriendsResMsg;
+import jms_messages.UserFriends.UserFriendsResMsgType;
 import model.Chat;
 import model.User;
 
@@ -43,6 +50,12 @@ public class UserMDB implements MessageListener {
 
 	@EJB
 	private ChatMessageServiceLocal chatMessageService;
+	
+	@EJB
+	private UserFriendsMgmtLocal userFriensMgmt;
+	
+	@EJB
+	private UserServiceLocal userService;
 
 	@Inject
 	private JMSContext context;
@@ -112,6 +125,21 @@ public class UserMDB implements MessageListener {
 					e.printStackTrace();
 				}
 			}
+			if(jmsUserApp.getType() == JMSUserAppType.USER_FRIENDS_REQ) {
+				UserFriendsResMsg resMsg = handleUserFriendsReq(jmsUserApp.getContent());
+				JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+				message.setType(JMSMessageToWebSocketType.USER_FRIENDS_RES);
+				try {
+					String jsonObject = mapper.writeValueAsString(resMsg);
+					message.setContent(jsonObject);
+					ObjectMessage oMessage = context.createObjectMessage();
+					oMessage.setObject(message);
+					JMSProducer producer = context.createProducer();
+					producer.send(destination, oMessage);
+				} catch (JMSException | JsonProcessingException e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (JMSException | IOException e) {
 			e.printStackTrace();
 		}
@@ -148,6 +176,44 @@ public class UserMDB implements MessageListener {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private UserFriendsResMsg handleUserFriendsReq(String content) {
+		ObjectMapper mapper = new ObjectMapper();
+		UserFriendsReqMsg msg = null;
+		try {
+			msg = mapper.readValue(content, UserFriendsReqMsg.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		List<User> ret = new ArrayList<>();
+		User u = null;
+		UserFriendsResMsgType type = null;
+		if(msg.getType() == UserFriendsReqMsgType.SEARCH) {
+			ret = userFriensMgmt.searchUsers(msg.getSearch());
+			return new UserFriendsResMsg(ret, msg.getHost(), msg.getSessionId(), UserFriendsResMsgType.SEARCH);
+		} else if(msg.getType() == UserFriendsReqMsgType.FRIEND_REQUEST) {
+			u = userFriensMgmt.friendRequest(msg.getAddRemove(), msg.getUser());
+			type = UserFriendsResMsgType.SENT_REQUEST;
+		} else if(msg.getType() == UserFriendsReqMsgType.FRIEND_REQUEST_DECL) {
+			u = userFriensMgmt.friendRequestDecl(msg.getUser(), msg.getAddRemove());
+			type = UserFriendsResMsgType.DECLINED_REQUEST;
+		} else if(msg.getType() == UserFriendsReqMsgType.ADD_FRIEND) {
+			u = userFriensMgmt.addFriend(msg.getUser(), msg.getAddRemove());
+			type = UserFriendsResMsgType.ADDED_FRIEND;
+		} else if(msg.getType() == UserFriendsReqMsgType.REMOVE_FRIEND) {
+			u = userFriensMgmt.removeFriend(msg.getUser(), msg.getAddRemove());
+			type = UserFriendsResMsgType.REMOVED_FRIEND;
+		} else if(msg.getType() == UserFriendsReqMsgType.UPDATE) {
+			u = userService.findOne(msg.getUser());
+			type = UserFriendsResMsgType.UPDATE;
+		}
+		if(u == null)
+			return new UserFriendsResMsg(null,msg.getHost(), msg.getSessionId(), UserFriendsResMsgType.ERROR);
+		ret.add(u);
+		return new UserFriendsResMsg(ret,msg.getHost(), msg.getSessionId(), type);
 	}
 
 }
