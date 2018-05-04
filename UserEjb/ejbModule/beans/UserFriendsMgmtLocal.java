@@ -12,9 +12,9 @@ import model.User;
 public interface UserFriendsMgmtLocal {
 	
 	public List<User> searchUsers(String search);
-	public User friendRequest(ObjectId user, ObjectId add);
-	public User friendRequestDecl(ObjectId user, ObjectId remove);
-	public User addFriend(ObjectId user, ObjectId add);
-	public User removeFriend(ObjectId user, ObjectId remove);
+	public User friendRequest(String user, ObjectId add);
+	public User friendRequestDecl(ObjectId user, String remove);
+	public User addFriend(ObjectId user, String add);
+	public User removeFriend(ObjectId user, String remove);
 	
 }

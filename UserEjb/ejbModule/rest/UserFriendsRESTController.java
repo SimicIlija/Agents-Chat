@@ -40,7 +40,7 @@ public class UserFriendsRESTController {
 			ret = userFriensMgmt.searchUsers(msg.getSearch());
 			return new UserFriendsResMsg(ret, msg.getHost(), msg.getSessionId(), UserFriendsResMsgType.SEARCH);
 		} else if(msg.getType() == UserFriendsReqMsgType.FRIEND_REQUEST) {
-			u = userFriensMgmt.friendRequest(msg.getUser(), msg.getAddRemove());
+			u = userFriensMgmt.friendRequest(msg.getAddRemove(), msg.getUser());
 			type = UserFriendsResMsgType.SENT_REQUEST;
 		} else if(msg.getType() == UserFriendsReqMsgType.FRIEND_REQUEST_DECL) {
 			u = userFriensMgmt.friendRequestDecl(msg.getUser(), msg.getAddRemove());

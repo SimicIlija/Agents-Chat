@@ -23,12 +23,9 @@ public class User extends BaseDO {
 	
 	private String lastName;
 	
-	@JsonIgnore
-	@Reference
-	private List<User> friends;
+	private List<String> friends;
 	
-	@Reference
-	private List<User> friendReq;
+	private List<String> friendReq;
 	
 	@NotSaved
 	@Transient
@@ -96,19 +93,23 @@ public class User extends BaseDO {
 		this.lastName = lastName;
 	}
 
-	public List<User> getFriends() {
+	public List<String> getFriends() {
+		if(friends == null)
+			friends = new ArrayList<>();
 		return friends;
 	}
 
-	public void setFriends(List<User> friends) {
+	public void setFriends(List<String> friends) {
 		this.friends = friends;
 	}
 
-	public List<User> getFriendReq() {
+	public List<String> getFriendReq() {
+		if(friendReq == null)
+			friendReq = new ArrayList<>();
 		return friendReq;
 	}
 
-	public void setFriendReq(List<User> friendReq) {
+	public void setFriendReq(List<String> friendReq) {
 		this.friendReq = friendReq;
 	}
 	

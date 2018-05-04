@@ -65,8 +65,8 @@
       
       function sendReq(id){
           var msg = {};
-          msg.user = id;
-          msg.addRemove = $rootScope.user.id;
+          msg.user = $rootScope.user.id;
+          msg.addRemove = id;
           msg.type = 'FRIEND_REQUEST'
           wsService.sendFriendReqMsg(msg);
         }

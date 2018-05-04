@@ -4,19 +4,14 @@
         <thead>
             <tr>
                 <th>Username</th>
-                <th>Firstname</th>
-                <th>Lastname</th>
-                <th>Remove</th>
             </tr>
         </thead>
         <tbody ng-repeat="user in friendsVm.user.friends">
             <th>
-                {{user.username}}
+                {{user}}
             </th>
-            <th>{{user.firstName}}</th>
-            <th>{{user.lastName}}</th>
             <th>
-                <button type="button" ng-click="friendsVm.removeFriend(user.id)" class="btn btn-danger">Remove from friends</button>
+                <button type="button" ng-click="friendsVm.removeFriend(user)" class="btn btn-danger">Remove from friends</button>
             </th>
         </tbody>
     </table>
@@ -25,20 +20,16 @@
         <thead>
             <tr>
                 <th>Username</th>
-                <th>Firstname</th>
-                <th>Lastname</th>
                 <th>Accept/Decline</th>
             </tr>
         </thead>
         <tbody ng-repeat="user in friendsVm.user.friendReq">
             <th>
-                {{user.username}}
+                {{user}}
             </th>
-            <th>{{user.firstName}}</th>
-            <th>{{user.lastName}}</th>
             <th>
-                <button type="button" ng-click="friendsVm.acceptReq(user.id)" class="btn btn-danger">Accept</button>
-                <button type="button" ng-click="friendsVm.declineReq(user.id)" class="btn btn-danger">Decline</button>
+                <button type="button" ng-click="friendsVm.acceptReq(user)" class="btn btn-danger">Accept</button>
+                <button type="button" ng-click="friendsVm.declineReq(user)" class="btn btn-danger">Decline</button>
             </th>
         </tbody>
     </table>
@@ -71,7 +62,7 @@
 	            <th>{{user.firstName}}</th>
 	            <th>{{user.lastName}}</th>
 	            <th>
-	                <button type="button" ng-click="friendsVm.sendReq(user.id)" class="btn btn-danger">Send Request</button>
+	                <button type="button" ng-click="friendsVm.sendReq(user.username)" class="btn btn-danger">Send Request</button>
 	            </th>
 	        </tbody>
     	</table>

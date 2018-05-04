@@ -18,9 +18,7 @@ public class UserFriendsReqMsg implements Serializable {
 	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
 	private ObjectId user;
 	
-	@JsonSerialize(using = ObjectIdMapping.ObjectIdSerializer.class)
-	@JsonDeserialize(using = ObjectIdMapping.ObjectIdDeserializer.class)
-	private ObjectId addRemove;
+	private String addRemove;
 
 	private Host host;
 	
@@ -52,11 +50,11 @@ public class UserFriendsReqMsg implements Serializable {
 		this.host = host;
 	}
 
-	public ObjectId getAddRemove() {
+	public String getAddRemove() {
 		return addRemove;
 	}
 
-	public void setAddRemove(ObjectId addRemove) {
+	public void setAddRemove(String addRemove) {
 		this.addRemove = addRemove;
 	}
 

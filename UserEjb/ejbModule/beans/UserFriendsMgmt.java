@@ -28,16 +28,16 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 	}
 
 	@Override
-	public User addFriend(ObjectId user, ObjectId add) {
+	public User addFriend(ObjectId user, String add) {
 		User u = userService.findOne(user);
 		if(u == null)
 			return null;
 		User a = userService.findOne(add);
 		if(a == null)
 			return null;
-		if(u.getFriendReq().removeIf(p -> p.getId().equals(add))) {
-			u.getFriends().add(a);
-			a.getFriends().add(u);
+		if(u.getFriendReq().removeIf(p -> p.equals(a.getUsername()))) {
+			u.getFriends().add(a.getUsername());
+			a.getFriends().add(u.getUsername());
 			userService.edit(u);
 			userService.edit(a);
 			List<String> list = new ArrayList<>();
@@ -50,15 +50,15 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 	}
 
 	@Override
-	public User removeFriend(ObjectId user, ObjectId remove) {
+	public User removeFriend(ObjectId user, String remove) {
 		User u = userService.findOne(user);
 		if(u == null)
 			return null;
 		User r = userService.findOne(remove);
 		if(r == null)
 			return null;
-		u.getFriends().removeIf(p -> p.getId().equals(remove));
-		r.getFriends().removeIf(p -> p.getId().equals(user));
+		u.getFriends().removeIf(p -> p.equals(r.getUsername()));
+		r.getFriends().removeIf(p -> p.equals(u.getUsername()));
 		userService.edit(u);
 		userService.edit(r);
 		Chat c = chatMessageService.findOneChat(u.getUsername(), r.getUsername());
@@ -68,35 +68,38 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 	}
 
 	@Override
-	public User friendRequest(ObjectId user, ObjectId add) {
+	public User friendRequest(String user, ObjectId add) {
 		User u = userService.findOne(user);
 		if(u == null)
 			return null;
 		User a = userService.findOne(add);
 		if(a == null)
 			return null;
-		for (User uIt : u.getFriends()) {
-			uIt.getId().equals(add);
+		if(user.equals(a.getUsername()))
+			return null;
+		
+		for (String uIt : u.getFriends()) {
+			uIt.equals(a.getUsername());
 			return u;
 		}
-		for (User uIt : u.getFriendReq()) {
-			uIt.getId().equals(add);
+		for (String uIt : a.getFriendReq()) {
+			uIt.equals(u.getUsername());
 			return u;
 		}
-		u.getFriendReq().add(a);
+		u.getFriendReq().add(a.getUsername());
 		userService.edit(u);
 		return u;
 	}
 
 	@Override
-	public User friendRequestDecl(ObjectId user, ObjectId remove) {
+	public User friendRequestDecl(ObjectId user, String remove) {
 		User u = userService.findOne(user);
 		if(u == null)
 			return null;
 		User r = userService.findOne(remove);
 		if(r == null)
 			return null;
-		u.getFriendReq().removeIf(p -> p.getId().equals(remove));
+		u.getFriendReq().removeIf(p -> p.equals(remove));
 		userService.edit(u);
 		return u;
 	}
