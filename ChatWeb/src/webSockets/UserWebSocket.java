@@ -110,21 +110,18 @@ public class UserWebSocket implements MessageListener {
 				handleGetLastChats(session, webSocketMessage.getContent());
 			} else if (webSocketMessage.getType() == WebSocketMessageType.LOGOUT) {
 				handleLogOut(session);
-			} else if(webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
+			} else if (webSocketMessage.getType() == WebSocketMessageType.GROUPS) {
+				handleMyGroups(session);
+			} else if (webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
 				handleUserFriendsReq(session, webSocketMessage.getContent());
+			} else if (webSocketMessage.getType() == WebSocketMessageType.REGISTER) {
+				handleRegister(session, webSocketMessage.getContent());
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-	}
-
-	private void handleLogOut(Session session) {
-		// TODO Auto-generated method stub
-		String username = sessionUser.get(session.getId());
-		System.out.println(username);
-		userAppCommunication.logoutAttempt(username);
 	}
 
 	@OnClose
@@ -192,6 +189,22 @@ public class UserWebSocket implements MessageListener {
 		}
 	}
 
+	private void handleRegister(Session session, String content) {
+		User user = null;
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+			user = mapper.readValue(content, User.class);
+			log.info(user.getUsername());
+
+			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
+			userAppCommunication.register(userAuthMsg);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void handleLoginMessage(Session session, String msg) {
 		User user = null;
 		try {
@@ -206,6 +219,17 @@ public class UserWebSocket implements MessageListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void handleMyGroups(Session session) {
+		String username = sessionUser.get(session.getId());
+		userAppCommunication.getMyGroups(username);
+	}
+
+	private void handleLogOut(Session session) {
+		String username = sessionUser.get(session.getId());
+		System.out.println(username);
+		userAppCommunication.logoutAttempt(username);
 	}
 
 	@Override
@@ -245,11 +269,12 @@ public class UserWebSocket implements MessageListener {
 				ObjectMapper mapper = new ObjectMapper();
 				UserAuthResMsg userAuthResMsg = mapper.readValue(json, UserAuthResMsg.class);
 				User user = userAuthResMsg.getUser();
-				
-				// TODO SIMO OVDE NISI PAZIO DA LI USER MOZE BITI NULL KONTAM OD PRILIKE IZ ZBOG CEPA ALI JA SAM SAMO VRATIO NULL PA TI VIDI JEL TO OK
-				if(user == null)
+
+				// TODO SIMO OVDE NISI PAZIO DA LI USER MOZE BITI NULL KONTAM OD PRILIKE IZ ZBOG
+				// CEPA ALI JA SAM SAMO VRATIO NULL PA TI VIDI JEL TO OK
+				if (user == null)
 					return;
-					
+
 				String id = userAuthResMsg.getSessionId();
 				userSession.put(user.getUsername(), id);
 				sessionUser.put(id, user.getUsername());
@@ -267,7 +292,7 @@ public class UserWebSocket implements MessageListener {
 				}
 				session.getBasicRemote().sendText(wsmJSON);
 			}
-			if(message.getType() == JMSMessageToWebSocketType.LAST_CHATS) {
+			if (message.getType() == JMSMessageToWebSocketType.LAST_CHATS) {
 				String json = (String) message.getContent();
 				System.out.println(json);
 				ObjectMapper mapper = new ObjectMapper();
@@ -288,7 +313,7 @@ public class UserWebSocket implements MessageListener {
 				session.getBasicRemote().sendText(wsmJSON);
 			}
 			if (message.getType() == JMSMessageToWebSocketType.LOGOUT) {
-				String username =(String) message.getContent();
+				String username = (String) message.getContent();
 				String id = userSession.get(username);
 				userSession.remove(username);
 				Session session = null;
@@ -304,8 +329,11 @@ public class UserWebSocket implements MessageListener {
 				session.getBasicRemote().sendText(wsmJSON);
 				sessionUser.remove(session.getId());
 			}
-			if(message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
-				handleUserFriendsRes((String)message.getContent());
+			if (message.getType() == JMSMessageToWebSocketType.GROUPS) {
+				System.out.println("Sredi");
+			}
+			if (message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
+				handleUserFriendsRes((String) message.getContent());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -336,7 +364,7 @@ public class UserWebSocket implements MessageListener {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void handleUserFriendsReq(Session session, String content) {
 		String username = sessionUser.get(session.getId());
 		if (username == null)
@@ -346,12 +374,12 @@ public class UserWebSocket implements MessageListener {
 			UserFriendsReqMsg msg = mapper.readValue(content, UserFriendsReqMsg.class);
 			msg.setSessionId(session.getId());
 			userAppCommunication.sendUserFriendsReqMsg(msg);
-			//TODO obraditi odgovor
+			// TODO obraditi odgovor
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void handleUserFriendsRes(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		UserFriendsResMsg msg = null;
@@ -361,24 +389,24 @@ public class UserWebSocket implements MessageListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-			System.out.println(json);
-			Session session = null;
-			for (Session s : sessions) {
-				if (s.getId().equals(msg.getSessionId())) {
-					session = s;
-				}
+
+		System.out.println(json);
+		Session session = null;
+		for (Session s : sessions) {
+			if (s.getId().equals(msg.getSessionId())) {
+				session = s;
 			}
-			if(session == null)
-				return;
-			WebSocketMessage wsm = new WebSocketMessage();
-			wsm.setType(WebSocketMessageType.USER_FRIENDS_RES);
-			wsm.setContent(json);
-			try {
-				session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		}
+		if (session == null)
+			return;
+		WebSocketMessage wsm = new WebSocketMessage();
+		wsm.setType(WebSocketMessageType.USER_FRIENDS_RES);
+		wsm.setContent(json);
+		try {
+			session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

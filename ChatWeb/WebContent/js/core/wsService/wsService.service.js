@@ -32,6 +32,8 @@ angular.module('core.wsService')
 				   }else if(this.payload.type == 'LOGOUT'){
 					   $rootScope.user = null;
 					   $state.go('home.chat');
+				   }else if(this.payload.type == 'GROUPS'){
+					   // TODO
 				   }
 				   else if(this.payload.type == 'USER_FRIENDS_RES') {
 					   $rootScope.$broadcast(this.payload.type, this.contentObjest);
@@ -102,7 +104,17 @@ angular.module('core.wsService')
 							this.socket.send(JSON.stringify(this.message));
 						}
 			}
-			
+
+			this.getGroups = () => {
+				this.message ={
+						"type" : "GROUPS"
+					   };
+					   
+						if(this.socket != null){
+							this.socket.send(JSON.stringify(this.message));
+						}
+			}
+
 		this.sendFriendReqMsg = (content) => {
 			this.message ={
 					"type" : "USER_FRIENDS_REQ",
@@ -110,4 +122,5 @@ angular.module('core.wsService')
 			};
 			this.socket.send(JSON.stringify(this.message));
 		};
+
 	});
