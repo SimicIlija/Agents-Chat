@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mongodb.morphia.annotations.Entity;
@@ -23,12 +24,9 @@ public class User extends BaseDO implements Serializable {
 	
 	private String lastName;
 	
-	@JsonIgnore
-	@Reference
-	private List<User> friends;
+	private List<String> friends;
 	
-	@Reference
-	private List<User> friendReq;
+	private List<String> friendReq;
 	
 	@NotSaved
 	@Transient
@@ -40,6 +38,8 @@ public class User extends BaseDO implements Serializable {
 		super();
 		this.username = username;
 		this.password = password;
+		this.friends = new ArrayList<>();
+		this.friendReq = new ArrayList<>();
 	}
 	
 	public User(String username, String password, String firstName, String lastName, Host host) {
@@ -49,12 +49,18 @@ public class User extends BaseDO implements Serializable {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.host = host;
+		this.friends = new ArrayList<>();
+		this.friendReq = new ArrayList<>();
 	}
 	
 	public User(String username, String password, String firstName, String lastName) {
 		super();
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.friends = new ArrayList<>();
+		this.friendReq = new ArrayList<>();
 	}
 
 	public String getUsername() {
@@ -94,19 +100,19 @@ public class User extends BaseDO implements Serializable {
 		this.lastName = lastName;
 	}
 	
-	public List<User> getFriends() {
+	public List<String> getFriends() {
 		return friends;
 	}
 
-	public void setFriends(List<User> friends) {
+	public void setFriends(List<String> friends) {
 		this.friends = friends;
 	}
 	
-	public List<User> getFriendReq() {
+	public List<String> getFriendReq() {
 		return friendReq;
 	}
 
-	public void setFriendReq(List<User> friendReq) {
+	public void setFriendReq(List<String> friendReq) {
 		this.friendReq = friendReq;
 	}
 	
