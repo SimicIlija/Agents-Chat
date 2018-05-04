@@ -2,6 +2,7 @@ package ejb_beans;
 
 import javax.ejb.Local;
 
+import jms_messages.GroupChatReqMsg;
 import jms_messages.MessageReqMsg;
 import jms_messages.UserAuthReqMsg;
 import jms_messages.UserFriendsReqMsg;
@@ -51,5 +52,10 @@ public interface UserAppCommunicationLocal {
 	public void register_JMS(UserAuthReqMsg userAuthMsg);
 	
 	public void register_REST(UserAuthReqMsg userAuthReqMsg);
+	
+	public void groupChatReqMsg(GroupChatReqMsg msg);
+	
+	public void groupChatReqMsg_JMS(GroupChatReqMsg msg);
 
+	public void groupChatReqMsg_REST(GroupChatReqMsg msg);
 }

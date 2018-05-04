@@ -25,7 +25,7 @@ public class GroupMgmt implements GroupMgmtLocal{
 	
 	@Override
 	public Chat createNew(String chatName, String adminName, String members) {
-		if(members == null || chatName == null || chatName.trim().isEmpty() || adminName == null || adminName.trim().isEmpty())
+		if(members == null || members.trim().isEmpty() || chatName == null || chatName.trim().isEmpty() || adminName == null || adminName.trim().isEmpty())
 			return null;
 		
 		User admin = userService.findOne(adminName);
@@ -38,8 +38,11 @@ public class GroupMgmt implements GroupMgmtLocal{
 			if(admin != null)
 				toAdd.add(string.trim());
 		}
+		if(toAdd.isEmpty())
+			return null;
 		toAdd.add(adminName);
 		Chat chat = new Chat(toAdd, adminName, new Date().getTime());
+		chat.setName(chatName);
 		return chatMessageService.creteChat(chat);
 	}
 

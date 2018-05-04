@@ -46,18 +46,18 @@ public class Test {
 		userService.add(u2);
 		userService.add(u3);
 		
-		group.createNew("cet", "proba", "test,tri");
-		
-		
-		
-		
-		ArrayList<String> users = new ArrayList<>();
-		users.add(u1.getUsername());
-		users.add(u2.getUsername());
-		
-		Chat chat1 = chatMessageService.creteChat(new Chat(users, null, (long)1525024791));
-		chatMessageService.saveMessage(chat1.getId(), new Message("test", (long)1525024791, "first"));
-		chatMessageService.saveMessage(chat1.getId(), new Message("proba", (long)1525024791, "second"));
-		chatMessageService.saveMessage(chat1.getId(), new Message("test", (long)1525024791, "third"));
+//		group.createNew("cet", "proba", "test,tri");
+//		
+//		
+//		
+//		
+//		ArrayList<String> users = new ArrayList<>();
+//		users.add(u1.getUsername());
+//		users.add(u2.getUsername());
+//		
+//		Chat chat1 = chatMessageService.creteChat(new Chat(users, null, (long)1525024791));
+//		chatMessageService.saveMessage(chat1.getId(), new Message("test", (long)1525024791, "first"));
+//		chatMessageService.saveMessage(chat1.getId(), new Message("proba", (long)1525024791, "second"));
+//		chatMessageService.saveMessage(chat1.getId(), new Message("test", (long)1525024791, "third"));
 	}
 }

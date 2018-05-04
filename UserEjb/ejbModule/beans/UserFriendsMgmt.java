@@ -79,12 +79,12 @@ public class UserFriendsMgmt implements UserFriendsMgmtLocal {
 			return null;
 		
 		for (String uIt : u.getFriends()) {
-			uIt.equals(a.getUsername());
+			if(uIt.equals(a.getUsername()))
 			return u;
 		}
-		for (String uIt : a.getFriendReq()) {
-			uIt.equals(u.getUsername());
-			return u;
+		for (String uIt : u.getFriendReq()) {
+			if(uIt.equals(a.getUsername()))
+				return u;
 		}
 		u.getFriendReq().add(a.getUsername());
 		userService.edit(u);

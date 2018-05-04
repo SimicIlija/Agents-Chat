@@ -14,6 +14,8 @@ public class Chat extends BaseDO implements Serializable{
 	
 	private Long timeStamp;
 	
+	private String name;
+	
 	@Reference
 	private List<Message> messages;
 
@@ -58,7 +60,13 @@ public class Chat extends BaseDO implements Serializable{
 	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
-	
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 }

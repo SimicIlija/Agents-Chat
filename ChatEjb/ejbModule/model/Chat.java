@@ -1,8 +1,12 @@
 package model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class Chat extends BaseDO {
+import org.mongodb.morphia.annotations.Reference;
+
+public class Chat extends BaseDO implements Serializable{
 	
 	private List<String> usernames;
 	
@@ -10,16 +14,19 @@ public class Chat extends BaseDO {
 	
 	private Long timeStamp;
 	
+	private String name;
+	
+	@Reference
 	private List<Message> messages;
 
 	public Chat() {}
 	
-	public Chat(List<String> usernames, String adnim, Long timeStamp, List<Message> messages) {
+	public Chat(List<String> usernames, String adnim, Long timeStamp) {
 		super();
 		this.usernames = usernames;
 		this.adnim = adnim;
 		this.timeStamp = timeStamp;
-		this.messages = messages;
+		this.messages = new ArrayList<>();
 	}
 
 	public List<String> getUsernames() {
@@ -53,7 +60,13 @@ public class Chat extends BaseDO {
 	public void setMessages(List<Message> messages) {
 		this.messages = messages;
 	}
-	
-	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 }

@@ -38,8 +38,11 @@ angular.module('core.wsService')
 				   else if(this.payload.type == 'USER_FRIENDS_RES') {
 					   $rootScope.$broadcast(this.payload.type, this.contentObjest);
 				   }
+				   else if(this.payload.type == 'GROUP_CHAT_RES') {
+					   $rootScope.$broadcast(this.payload.type, this.contentObjest);
+				   }
 				   
-				   alert(message.data);
+				   //alert(message.data);
 			   }
 			   
 			   socket.onclose = function() {
@@ -132,5 +135,13 @@ angular.module('core.wsService')
 			};
 			this.socket.send(JSON.stringify(this.message));
 		};
+		
+		this.sendGroupChatReqMsg = (content) => {
+			this.message = {
+				"type" : "GROUP_CHAT_REQ",
+				"content" : JSON.stringify(content)
+			};
+			this.socket.send(JSON.stringify(this.message));
+		}
 
 	});

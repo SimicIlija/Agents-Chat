@@ -21,6 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import config.PropertiesSupplierLocal;
+import jms_messages.GroupChatReqMsg;
+import jms_messages.GroupChatResMsg;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.JMSUserApp;
@@ -312,9 +314,8 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@Override
 	public void sendUserFriendsReqMsg_REST(UserFriendsReqMsg msg) {
-		// TODO izmeniti da nije hardCoded adresa
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-friends");
+		ResteasyWebTarget target = client.target("http://" + prop.getProperty("MASTER_LOCATION") + ":" + prop.getProperty("MASTER_PORT") + "/UserWeb/rest/user-friends");
 		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 		UserFriendsResMsg resMsg = response.readEntity(UserFriendsResMsg.class);
 		
@@ -330,7 +331,7 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 			producer.send(destination, objectMessage);
 		} catch (JMSException | JsonProcessingException e) {
 			e.printStackTrace();
-}
+		}
 	}
 
 	@Override
@@ -355,7 +356,7 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 	@Override
 	public void register_REST(UserAuthReqMsg userAuthReqMsg) {
 		ResteasyClient client = new ResteasyClientBuilder().build();
-		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/register");
+		ResteasyWebTarget target = client.target("http://" + prop.getProperty("MASTER_LOCATION") + ":" + prop.getProperty("MASTER_PORT") + "/UserWeb/rest/user-auth/register");
 		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthReqMsg, MediaType.APPLICATION_JSON));
 		UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
 		
@@ -372,6 +373,48 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		} catch (JMSException | JsonProcessingException e) {
 			e.printStackTrace();
 }
+		
+	}
+
+	@Override
+	public void groupChatReqMsg(GroupChatReqMsg msg) {
+boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// TODO kad Sima uradi JMS SKOLoniti komentare
+//		if(is_master) {
+//			register_JMS(userAuthMsg);
+//		}else {
+			groupChatReqMsg_REST(msg);
+//		}
+		
+	}
+
+	@Override
+	public void groupChatReqMsg_JMS(GroupChatReqMsg msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void groupChatReqMsg_REST(GroupChatReqMsg msg) {
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		ResteasyWebTarget target = client.target("http://" + prop.getProperty("MASTER_LOCATION") + ":" + prop.getProperty("MASTER_PORT") + "/UserWeb/rest/group");
+		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+		GroupChatResMsg resMsg = response.readEntity(GroupChatResMsg.class);
+		
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.GROUP_CHAT_RES);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+		}
 		
 	}
 }

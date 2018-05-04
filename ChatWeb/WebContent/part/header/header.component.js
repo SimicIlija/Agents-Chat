@@ -8,6 +8,7 @@ angular.module('header')
 			this.logOut = () => {
 				console.log("klik");
 				wsService.logout();
+				$state.go('home');
 			};
 		}
 	});

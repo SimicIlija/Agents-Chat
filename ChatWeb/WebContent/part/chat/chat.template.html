@@ -2,9 +2,15 @@
 <div class="row no-gutters align-items-stretch">
 	<div ng-repeat="chat in $root.chats"
 		class="card m-md-1 col-lg-4 col-md-6">
-			<div class="card-body">
+			<div class="card-body" ng-if="chat.adnim">
 				<h3 class="card-title">
-						<a ng-click="$ctrl.changeChat(chat)">{{chat.usernames}}</a>
+						<a  ng-click="$ctrl.changeChat(chat)">Group: {{chat.name}}</a>
+				</h3>
+				{{chat.usernames}}
+			</div>
+			<div class="card-body" ng-if="!chat.adnim">
+				<h3 class="card-title">
+						<a  ng-click="$ctrl.changeChat(chat)">{{$ctrl.getOther(chat.usernames)}}</a>
 				</h3>
 			</div>
 	</div>

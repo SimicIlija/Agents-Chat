@@ -4,6 +4,9 @@ angular.module('chat')
 	.component('myChat', {
 		templateUrl: 'part/chat/chat.template.html',
 		controller: function( $rootScope, $state,wsService,$scope,$element) {
+			if(!$rootScope.user)
+				$state.go('home');
+			
 			this.currentChat = -1;
 			
 			wsService.getLatestChat();
@@ -41,6 +44,18 @@ angular.module('chat')
 				chat.messages.forEach(function(element){
 					$element.find('textarea').val($element.find('textarea').val() +element.sender+" : "+ element.content + "\n");
 				});
+			}
+			
+			this.getOther = (usernames) => {
+				if(usernames.indexOf($rootScope.user.username) == 0)
+					return usernames[1];
+				else return usernames[0];
+			}
+			
+			this.isAdnim = (data) => {
+				if(data)
+					return true;
+				return false;
 			}
 		}
 	});

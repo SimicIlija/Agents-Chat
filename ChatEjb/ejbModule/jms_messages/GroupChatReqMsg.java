@@ -1,20 +1,25 @@
-package jms_messages.GroupChatMsg;
+package jms_messages;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class GroupChatMsgReq {
+import model.Host;
+
+public class GroupChatReqMsg implements Serializable {
 	
 	private String chat;
 	
 	private String admin;
 	
 	private String memebers;
-
-	private GroupChatMsgReqType type;
 	
-	public GroupChatMsgReq() {}
+	private String sessionId;
 
-	public GroupChatMsgReq(String chat, String admin, String memebers, GroupChatMsgReqType type) {
+	private GroupChatReqMsgType type;
+	
+	public GroupChatReqMsg() {}
+
+	public GroupChatReqMsg(String chat, String admin, String memebers, GroupChatReqMsgType type) {
 		super();
 		this.chat = chat;
 		this.admin = admin;
@@ -46,12 +51,20 @@ public class GroupChatMsgReq {
 		this.memebers = memebers;
 	}
 
-	public GroupChatMsgReqType getType() {
+	public GroupChatReqMsgType getType() {
 		return type;
 	}
 
-	public void setType(GroupChatMsgReqType type) {
+	public void setType(GroupChatReqMsgType type) {
 		this.type = type;
 	}
-	
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
 }

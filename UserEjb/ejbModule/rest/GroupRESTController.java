@@ -6,15 +6,16 @@ import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import beans.GroupMgmt;
 import beans.GroupMgmtLocal;
-import jms_messages.LastChatsResMsg;
-import jms_messages.GroupChatMsg.GroupChatMsgReq;
-import jms_messages.GroupChatMsg.GroupChatMsgReqType;
+
+import jms_messages.GroupChat.GroupChatReqMsg;
+import jms_messages.GroupChat.GroupChatReqMsgType;
+import jms_messages.GroupChat.GroupChatResMsg;
+import jms_messages.GroupChat.GroupChatResMsgType;
+import model.Chat;
 
 @Path("/group")
 @Stateless
@@ -26,9 +27,12 @@ public class GroupRESTController {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public void getGroups(GroupChatMsgReq msg) {
-		if(msg.getType() == GroupChatMsgReqType.NEW_CHAT) {
-			groupMngmt.createNew(msg.getChat(), msg.getAdmin(), msg.getMemebers());
+	public GroupChatResMsg GroupChatREST(GroupChatReqMsg msg) {
+		if(msg.getType() == GroupChatReqMsgType.NEW_CHAT) {
+			Chat chat = groupMngmt.createNew(msg.getChat(), msg.getAdmin(), msg.getMemebers());
+			if(chat != null)
+				return new GroupChatResMsg(GroupChatResMsgType.CREATED, msg.getSessionId());
 		}
+		return new GroupChatResMsg(GroupChatResMsgType.ERROR, msg.getSessionId());
 	}
 }

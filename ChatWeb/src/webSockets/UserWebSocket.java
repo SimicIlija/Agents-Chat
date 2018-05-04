@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cluster.UserClusterManagerLocal;
 import ejb_beans.ChatAppCommunicationLocal;
 import ejb_beans.UserAppCommunicationLocal;
+import jms_messages.GroupChatReqMsg;
+import jms_messages.GroupChatResMsg;
 import jms_messages.JMSMessageToWebSocket;
 import jms_messages.JMSMessageToWebSocketType;
 import jms_messages.LastChatsResMsg;
@@ -117,6 +119,8 @@ public class UserWebSocket implements MessageListener {
 				handleUserFriendsReq(session, webSocketMessage.getContent());
 			} else if (webSocketMessage.getType() == WebSocketMessageType.REGISTER) {
 				handleRegister(session, webSocketMessage.getContent());
+			} else if(webSocketMessage.getType() == WebSocketMessageType.GROUP_CHAT_REQ) {
+				handleGroupChatMsgReq(session, webSocketMessage.getContent());
 			}
 
 		} catch (Exception e) {
@@ -330,8 +334,8 @@ public class UserWebSocket implements MessageListener {
 				session.getBasicRemote().sendText(wsmJSON);
 				sessionUser.remove(session.getId());
 			}
-			if (message.getType() == JMSMessageToWebSocketType.GROUPS) {
-				System.out.println("Sredi");
+			if (message.getType() == JMSMessageToWebSocketType.GROUP_CHAT_RES) {
+				handleGroupChatRes((String)message.getContent());
 			}
 			if (message.getType() == JMSMessageToWebSocketType.USER_FRIENDS_RES) {
 				handleUserFriendsRes((String) message.getContent());
@@ -392,7 +396,6 @@ public class UserWebSocket implements MessageListener {
 			UserFriendsReqMsg msg = mapper.readValue(content, UserFriendsReqMsg.class);
 			msg.setSessionId(session.getId());
 			userAppCommunication.sendUserFriendsReqMsg(msg);
-			// TODO obraditi odgovor
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -419,6 +422,51 @@ public class UserWebSocket implements MessageListener {
 			return;
 		WebSocketMessage wsm = new WebSocketMessage();
 		wsm.setType(WebSocketMessageType.USER_FRIENDS_RES);
+		wsm.setContent(json);
+		try {
+			session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void handleGroupChatMsgReq(Session session, String content) {
+		String username = sessionUser.get(session.getId());
+		if (username == null)
+			return;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			GroupChatReqMsg msg = mapper.readValue(content, GroupChatReqMsg.class);
+			msg.setAdmin(username);
+			msg.setSessionId(session.getId());
+			userAppCommunication.groupChatReqMsg(msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void handleGroupChatRes(String json) {
+		ObjectMapper mapper = new ObjectMapper();
+		GroupChatResMsg msg = null;
+		try {
+			msg = mapper.readValue(json, GroupChatResMsg.class);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(json);
+		Session session = null;
+		for (Session s : sessions) {
+			if (s.getId().equals(msg.getSessionId())) {
+				session = s;
+			}
+		}
+		if (session == null)
+			return;
+		WebSocketMessage wsm = new WebSocketMessage();
+		wsm.setType(WebSocketMessageType.GROUP_CHAT_RES);
 		wsm.setContent(json);
 		try {
 			session.getBasicRemote().sendText(mapper.writeValueAsString(wsm));
