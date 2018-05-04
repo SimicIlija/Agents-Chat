@@ -18,6 +18,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import config.PropertiesSupplierLocal;
 import model.User;
 import model.Users;
@@ -44,8 +46,10 @@ public class UserClusterManager implements UserClusterManagerLocal{
 			ResteasyClient client = new ResteasyClientBuilder().build();
 			String targetString1 = "http://"+prop.getProperty("MASTER_LOCATION")+":"+prop.getProperty("MASTER_PORT")+"/ChatWeb/rest/User/getAllActiveUsers";
 			ResteasyWebTarget target1 = client.target(targetString1);
-			Response response1 = target1.request(MediaType.APPLICATION_JSON).get();
-			Users users = response1.readEntity(Users.class);
+			Response response1 = target1.request().get();
+			String jsonUsers = response1.readEntity(String.class);
+			ObjectMapper objectMapper = new ObjectMapper();
+			Users users = objectMapper.readValue(jsonUsers, Users.class);
 			activeUsers = users.getListOfUsers();
 			
 		}catch(Exception e) {

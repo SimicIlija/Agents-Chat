@@ -71,10 +71,19 @@ public class UserController { //implements MessageListener {
 	@GET
 	@Path("/getAllActiveUsers")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Users getAllUsers( ) {
+	public String getAllUsers( ) {
+		
 		List<User> activeUsers = userClusterManager.getAllActiveUsers();
 		Users users = new Users(activeUsers);
-		return users;
+		
+		String jsonUser = "";
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			jsonUser = mapper.writeValueAsString(users);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return jsonUser;
 	}
 	
 //	@Override

@@ -16,11 +16,11 @@ public interface UserAppCommunicationLocal {
 	
 	public void sendAuthAttempt_REST(UserAuthReqMsg userAuthMsg);
 
-	public LastChatsResMsg getLastChats(String username);
+	public void getLastChats(String username);
 	
-	public LastChatsResMsg getLastChats_JMS(String username);
+	public void getLastChats_JMS(String username);
 	
-	public LastChatsResMsg getLastChats_REST(String username);
+	public void getLastChats_REST(String username);
 
 	public void logoutAttempt(String username);
 	
