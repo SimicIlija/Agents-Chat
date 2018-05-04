@@ -1,5 +1,6 @@
 package beans;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,19 +24,22 @@ public class GroupMgmt implements GroupMgmtLocal{
 	private UserServiceLocal userService;
 	
 	@Override
-	public Chat createNew(String chatName, String adminName, List<String> members) {
+	public Chat createNew(String chatName, String adminName, String members) {
 		if(members == null || chatName == null || chatName.trim().isEmpty() || adminName == null || adminName.trim().isEmpty())
 			return null;
 		
 		User admin = userService.findOne(adminName);
 		if(admin == null)
 			return null;
-		for (String string : members) {
-			admin = userService.findOne(string);
-			if(admin == null)
-				return null;
+		String[] split = members.split(",");
+		List<String> toAdd = new ArrayList<>();
+		for (String string : split) {
+			admin = userService.findOne(string.trim());
+			if(admin != null)
+				toAdd.add(string.trim());
 		}
-		Chat chat = new Chat(members, adminName, new Date().getTime());
+		toAdd.add(adminName);
+		Chat chat = new Chat(toAdd, adminName, new Date().getTime());
 		return chatMessageService.creteChat(chat);
 	}
 
@@ -54,7 +58,7 @@ public class GroupMgmt implements GroupMgmtLocal{
 	}
 
 	@Override
-	public Chat addNewMember(String chatId, String userName) {
+	public Chat addNewMember(String chatId, String admin, String userName) {
 		Chat chat = chatMessageService.findOneChat(new ObjectId(chatId));
 		if(chat == null)
 			return null;

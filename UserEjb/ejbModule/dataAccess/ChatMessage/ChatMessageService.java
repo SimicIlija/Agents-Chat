@@ -112,4 +112,11 @@ public class ChatMessageService implements ChatMessageServiceLocal {
 		dao.getCollection().save(tmp);
 	}
 
+	@Override
+	public List<Chat> getGroupsAdmin(String admin) {
+		Datastore ds = conn.getDatastore();
+		List<Chat> chats = ds.createQuery(Chat.class).field("adnim").contains(admin).asList();
+		return chats;
+	}
+
 }

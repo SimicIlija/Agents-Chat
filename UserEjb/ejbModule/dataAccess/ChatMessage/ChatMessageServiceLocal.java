@@ -20,4 +20,5 @@ public interface ChatMessageServiceLocal {
 	public Chat creteChat(Chat chat);
 	public Chat deleteChat(ObjectId id);
 	public void editChat(Chat input);
+	public List<Chat> getGroupsAdmin(String admin);
 }

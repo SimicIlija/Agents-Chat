@@ -27,6 +27,9 @@ public class Test {
 	
 	@EJB
 	ChatMessageServiceLocal chatMessageService;
+	
+	@EJB
+	GroupMgmtLocal group;
 
 	@PostConstruct
 	public void init() {
@@ -38,8 +41,15 @@ public class Test {
 		
 		User u1 = new User("proba", "probaproba", "Proba", "Probic", null);
 		User u2 = new User("test", "testtest", "Test", "Testic", null);
+		User u3 = new User("tri", "tritri", "Trit", "Tritic", null);
 		u1 = userService.add(u1);
 		userService.add(u2);
+		userService.add(u3);
+		
+		group.createNew("cet", "proba", "test,tri");
+		
+		
+		
 		
 //		ArrayList<String> users = new ArrayList<>();
 //		users.add(u1.getUsername());
