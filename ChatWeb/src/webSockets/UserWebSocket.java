@@ -114,6 +114,8 @@ public class UserWebSocket implements MessageListener {
 				handleMyGroups(session);
 			} else if (webSocketMessage.getType() == WebSocketMessageType.USER_FRIENDS_REQ) {
 				handleUserFriendsReq(session, webSocketMessage.getContent());
+			} else if (webSocketMessage.getType() == WebSocketMessageType.REGISTER) {
+				handleRegister(session, webSocketMessage.getContent());
 			}
 
 		} catch (Exception e) {
@@ -187,6 +189,22 @@ public class UserWebSocket implements MessageListener {
 		}
 	}
 
+	private void handleRegister(Session session, String content) {
+		User user = null;
+		try {
+
+			ObjectMapper mapper = new ObjectMapper();
+			user = mapper.readValue(content, User.class);
+			log.info(user.getUsername());
+
+			UserAuthReqMsg userAuthMsg = new UserAuthReqMsg(user, session.getId(), null, UserAuthReqMsgType.LOGIN);
+			userAppCommunication.register(userAuthMsg);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void handleLoginMessage(Session session, String msg) {
 		User user = null;
 		try {

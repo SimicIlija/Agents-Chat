@@ -320,5 +320,41 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 		
 		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
 		message.setType(JMSMessageToWebSocketType.USER_FRIENDS_RES);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+}
+	}
+
+	@Override
+	public void register(UserAuthReqMsg userAuthMsg) {
+		boolean is_master = prop.getProperty("IS_MASTER").equals("true");
+		
+		// TODO kad Sima uradi JMS SKOLoniti komentare
+//		if(is_master) {
+//			register_JMS(userAuthMsg);
+//		}else {
+			register_REST(userAuthMsg);
+//		}
+		
+	}
+
+	@Override
+	public void register_JMS(UserAuthReqMsg userAuthMsg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void register_REST(UserAuthReqMsg userAuthReqMsg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

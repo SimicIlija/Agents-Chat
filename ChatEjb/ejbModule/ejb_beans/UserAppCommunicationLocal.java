@@ -46,4 +46,10 @@ public interface UserAppCommunicationLocal {
 
 	public void getMyGroups_REST(String username);
 
+	public void register(UserAuthReqMsg userAuthMsg);
+	
+	public void register_JMS(UserAuthReqMsg userAuthMsg);
+	
+	public void register_REST(UserAuthReqMsg userAuthReqMsg);
+
 }
