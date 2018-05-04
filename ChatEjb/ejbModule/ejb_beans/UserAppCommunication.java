@@ -354,7 +354,24 @@ public class UserAppCommunication implements UserAppCommunicationLocal{
 
 	@Override
 	public void register_REST(UserAuthReqMsg userAuthReqMsg) {
-		// TODO Auto-generated method stub
+		ResteasyClient client = new ResteasyClientBuilder().build();
+		ResteasyWebTarget target = client.target("http://localhost:8080/UserWeb/rest/user-auth/register");
+		Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(userAuthReqMsg, MediaType.APPLICATION_JSON));
+		UserAuthResMsg resMsg = response.readEntity(UserAuthResMsg.class);
+		
+		JMSMessageToWebSocket message = new JMSMessageToWebSocket();
+		message.setType(JMSMessageToWebSocketType.REGISTER);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String jsonObject = mapper.writeValueAsString(resMsg);
+			message.setContent(jsonObject);
+			ObjectMessage objectMessage = context.createObjectMessage();
+			objectMessage.setObject(message);
+			JMSProducer producer = context.createProducer();
+			producer.send(destination, objectMessage);
+		} catch (JMSException | JsonProcessingException e) {
+			e.printStackTrace();
+}
 		
 	}
 }
