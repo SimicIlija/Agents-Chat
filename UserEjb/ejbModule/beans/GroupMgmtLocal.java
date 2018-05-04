@@ -9,7 +9,7 @@ import model.Chat;
 @Local
 public interface GroupMgmtLocal {
 	public Chat createNew(String chatName, String adminName, List<String> members);
-	public Chat leaveChat(String chatName, String userName);
-	public void addNewMember(String chatName, String userName);
-	public void removeMember(String chatName, String userName, String myName);
+	public Chat leaveChat(String chatId, String userName);
+	public Chat addNewMember(String chatId, String userName);
+	public Chat removeMember(String chatId, String userName, String myName);
 }
